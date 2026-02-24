@@ -1,1 +1,10 @@
-perf: agregar decisao anti-explosao, renomear Continuar Busca, 12 nos
+feat: pagina de detalhes individual do prompt
+
+- Nova rota /prompts/[id] com layout duas colunas
+- Imagem grande com bordas arredondadas e sombra
+- Bloco de prompt com fundo slate-50 e botao Copiar
+- Secao Onde Usar com model_name do Supabase
+- Tags como pills arredondados
+- Loading skeleton durante carregamento
+- Estado 404 para prompts inexistentes
+- PromptCard agora navega para pagina de detalhes

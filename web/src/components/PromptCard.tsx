@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { Prompt } from "@/lib/supabase";
 
 interface PromptCardProps {
@@ -45,78 +46,80 @@ export default function PromptCard({ prompt }: PromptCardProps) {
         placeholderGradients.length;
 
     return (
-        <div className="group relative rounded-2xl overflow-hidden bg-[var(--bg-card)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-300 hover:-translate-y-1 cursor-pointer aspect-[3/4]">
-            {/* Image */}
-            <div className="absolute inset-0 overflow-hidden">
-                {prompt.image_url ? (
-                    <img
-                        src={prompt.image_url}
-                        alt={prompt.title}
-                        className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                        loading="lazy"
-                    />
-                ) : (
-                    <div
-                        className={`w-full h-full bg-gradient-to-br ${placeholderGradients[gradientIndex]} flex items-center justify-center`}
-                    >
-                        <span className="text-white/30 text-6xl font-bold">
-                            {prompt.title.charAt(0).toUpperCase()}
+        <Link href={`/prompts/${prompt.original_id}`} className="block no-underline">
+            <div className="group relative rounded-2xl overflow-hidden bg-[var(--bg-card)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-300 hover:-translate-y-1 cursor-pointer aspect-[3/4]">
+                {/* Image */}
+                <div className="absolute inset-0 overflow-hidden">
+                    {prompt.image_url ? (
+                        <img
+                            src={prompt.image_url}
+                            alt={prompt.title}
+                            className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                            loading="lazy"
+                        />
+                    ) : (
+                        <div
+                            className={`w-full h-full bg-gradient-to-br ${placeholderGradients[gradientIndex]} flex items-center justify-center`}
+                        >
+                            <span className="text-white/30 text-6xl font-bold">
+                                {prompt.title.charAt(0).toUpperCase()}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Title badge - top left */}
+                    <div className="absolute top-3 left-3 right-16 flex items-center">
+                        <span className="bg-black/70 backdrop-blur-sm text-white text-xs font-semibold tracking-wide uppercase px-3 py-1.5 rounded-full truncate">
+                            {prompt.title}
                         </span>
                     </div>
-                )}
-
-                {/* Title badge - top left */}
-                <div className="absolute top-3 left-3 right-16 flex items-center">
-                    <span className="bg-black/70 backdrop-blur-sm text-white text-xs font-semibold tracking-wide uppercase px-3 py-1.5 rounded-full truncate">
-                        {prompt.title}
-                    </span>
                 </div>
-            </div>
 
-            {/* Overlay gradient */}
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pt-16">
-                {/* Prompt preview */}
-                <p className="text-sm text-white/90 leading-relaxed line-clamp-3 mb-3">
-                    {prompt.full_prompt}
-                </p>
+                {/* Overlay gradient */}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pt-16">
+                    {/* Prompt preview */}
+                    <p className="text-sm text-white/90 leading-relaxed line-clamp-3 mb-3">
+                        {prompt.full_prompt}
+                    </p>
 
-                {/* Footer: Copy button + Author */}
-                <div className="flex items-center justify-between">
-                    <button
-                        onClick={handleCopy}
-                        className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-200 ${copied
-                            ? "bg-emerald-500/20 text-emerald-400"
-                            : "bg-white/10 text-white hover:bg-white/20"
-                            }`}
-                    >
-                        {copied ? (
-                            <>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M20 6L9 17l-5-5" />
-                                </svg>
-                                Copiado!
-                            </>
-                        ) : (
-                            <>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                                </svg>
-                                Copiar
-                            </>
-                        )}
-                    </button>
+                    {/* Footer: Copy button + Author */}
+                    <div className="flex items-center justify-between">
+                        <button
+                            onClick={handleCopy}
+                            className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-200 ${copied
+                                ? "bg-emerald-500/20 text-emerald-400"
+                                : "bg-white/10 text-white hover:bg-white/20"
+                                }`}
+                        >
+                            {copied ? (
+                                <>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M20 6L9 17l-5-5" />
+                                    </svg>
+                                    Copiado!
+                                </>
+                            ) : (
+                                <>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                    </svg>
+                                    Copiar
+                                </>
+                            )}
+                        </button>
 
-                    {prompt.author_name && (
-                        <span className="text-xs text-white/60">
-                            por{" "}
-                            <span className="text-white/80 font-medium">
-                                {prompt.author_name}
+                        {prompt.author_name && (
+                            <span className="text-xs text-white/60">
+                                por{" "}
+                                <span className="text-white/80 font-medium">
+                                    {prompt.author_name}
+                                </span>
                             </span>
-                        </span>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }
