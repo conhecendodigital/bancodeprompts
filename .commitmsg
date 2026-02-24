@@ -1,7 +1,10 @@
-style: polimento final - cursor, hover, hero text, onde usar condicional
+chore: reorganizar migrations e atualizar export do workflow n8n
 
-- Onde Usar so exibe se model_name existir
-- Removido link Ver no site original
-- cursor-pointer em todos os chips e categorias dos filtros
-- hover:bg-slate-100 e ring-2 nos filtros ativos
-- Compartilhando com C maiusculo no hero
+Migrations:
+- 003: tabela automation_config para estado persistido
+- 004: estado inicial do coletor com offsets e contadores
+- 005: coluna model_name em prompts_vault
+
+Workflow:
+- Renomeado export para nome oficial do workflow
+- Removidos JSONs antigos de versoes anteriores

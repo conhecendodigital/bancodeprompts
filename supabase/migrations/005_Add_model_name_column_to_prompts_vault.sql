@@ -1,0 +1,2 @@
+ALTER TABLE prompts_vault
+ADD COLUMN IF NOT EXISTS model_name TEXT DEFAULT NULL;
