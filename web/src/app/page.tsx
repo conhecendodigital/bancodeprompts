@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase, type Prompt } from "@/lib/supabase";
 import SearchFilters from "@/components/SearchFilters";
 import PromptGrid from "@/components/PromptGrid";
@@ -72,6 +72,25 @@ export default function HomePage() {
     );
   }, []);
 
+  // Extract unique tags and model names from prompts
+  const dynamicTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    prompts.forEach((p) => {
+      if (p.tags && Array.isArray(p.tags)) {
+        p.tags.forEach((t) => tagSet.add(t));
+      }
+    });
+    return Array.from(tagSet).sort();
+  }, [prompts]);
+
+  const modelNames = useMemo(() => {
+    const modelSet = new Set<string>();
+    prompts.forEach((p) => {
+      if (p.model_name) modelSet.add(p.model_name);
+    });
+    return Array.from(modelSet).sort();
+  }, [prompts]);
+
   return (
     <div className="min-h-screen bg-[var(--bg)]">
       {/* Hero Section */}
@@ -95,6 +114,8 @@ export default function HomePage() {
           onTagToggle={handleTagToggle}
           activeTags={activeTags}
           searchQuery={searchQuery}
+          dynamicTags={dynamicTags}
+          modelNames={modelNames}
         />
       </section>
 

@@ -14,5 +14,6 @@ export interface Prompt {
   author_name: string | null;
   tags: string[];
   source_url: string | null;
+  model_name: string | null;
   captured_at: string;
 }
