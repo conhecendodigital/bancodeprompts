@@ -1,10 +1,1 @@
-chore: reorganizar migrations e atualizar export do workflow n8n
-
-Migrations:
-- 003: tabela automation_config para estado persistido
-- 004: estado inicial do coletor com offsets e contadores
-- 005: coluna model_name em prompts_vault
-
-Workflow:
-- Renomeado export para nome oficial do workflow
-- Removidos JSONs antigos de versoes anteriores
+docs: README profissional com setup completo
