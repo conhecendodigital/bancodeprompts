@@ -11,7 +11,7 @@ export default function Header() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2 no-underline">
+                    <Link href="/" className="flex items-center gap-2 no-underline cursor-pointer">
                         <div className="w-8 h-8 rounded-lg bg-[var(--bg-card)] flex items-center justify-center">
                             <span className="text-white text-sm font-bold">BP</span>
                         </div>
@@ -24,19 +24,13 @@ export default function Header() {
                     <nav className="hidden md:flex items-center gap-8">
                         <Link
                             href="/"
-                            className="text-sm font-medium text-[var(--text)] hover:text-[var(--accent)] transition-colors no-underline"
-                        >
-                            Início
-                        </Link>
-                        <Link
-                            href="/"
-                            className="text-sm font-medium text-[var(--accent)] border-b-2 border-[var(--accent)] pb-0.5 no-underline"
+                            className="text-sm font-medium text-[var(--accent)] border-b-2 border-[var(--accent)] pb-0.5 no-underline cursor-pointer"
                         >
                             Explorar
                         </Link>
                         <Link
                             href="#sobre"
-                            className="text-sm font-medium text-[var(--text)] hover:text-[var(--accent)] transition-colors no-underline"
+                            className="text-sm font-medium text-[var(--text)] hover:text-[var(--accent)] transition-colors no-underline cursor-pointer"
                         >
                             Sobre
                         </Link>
@@ -45,7 +39,7 @@ export default function Header() {
                     {/* Mobile menu button */}
                     <button
                         onClick={() => setMenuOpen(!menuOpen)}
-                        className="md:hidden p-2 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors"
+                        className="md:hidden p-2 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors cursor-pointer"
                         aria-label="Menu"
                     >
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -66,21 +60,14 @@ export default function Header() {
                         <Link
                             href="/"
                             onClick={() => setMenuOpen(false)}
-                            className="text-sm font-medium text-[var(--text)] hover:text-[var(--accent)] py-2 no-underline"
-                        >
-                            Início
-                        </Link>
-                        <Link
-                            href="/"
-                            onClick={() => setMenuOpen(false)}
-                            className="text-sm font-medium text-[var(--accent)] py-2 no-underline"
+                            className="text-sm font-medium text-[var(--accent)] py-2 no-underline cursor-pointer"
                         >
                             Explorar
                         </Link>
                         <Link
                             href="#sobre"
                             onClick={() => setMenuOpen(false)}
-                            className="text-sm font-medium text-[var(--text)] hover:text-[var(--accent)] py-2 no-underline"
+                            className="text-sm font-medium text-[var(--text)] hover:text-[var(--accent)] py-2 no-underline cursor-pointer"
                         >
                             Sobre
                         </Link>
