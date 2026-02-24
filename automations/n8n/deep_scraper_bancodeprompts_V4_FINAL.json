@@ -1,0 +1,331 @@
+{
+    "id": "tKRng0JHYv4y5lTa",
+    "name": "BANCO DE PROMPTS - Deep Scraper",
+    "active": false,
+    "nodes": [
+        {
+            "id": "a1b2c3d4-0001",
+            "name": "Agendamento Diário",
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "expression": "0 3 * * *",
+                            "field": "cronExpression"
+                        }
+                    ]
+                }
+            },
+            "position": [
+                0,
+                0
+            ],
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1.3
+        },
+        {
+            "id": "a1b2c3d4-0002",
+            "name": "Iniciar Contador",
+            "parameters": {
+                "jsCode": "// BANCO DE PROMPTS — Inicialização\nconst maxPages = 1;\n\nreturn [{\n  json: {\n    page: 1,\n    maxPages: maxPages,\n    hasMore: true,\n    totalProcessed: 0\n  }\n}];"
+            },
+            "position": [
+                272,
+                0
+            ],
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2
+        },
+        {
+            "id": "f7e8d9c0-http-final",
+            "maxTries": 3,
+            "name": "Buscar Página de Prompts",
+            "onError": "continueRegularOutput",
+            "parameters": {
+                "options": {},
+                "url": "=https://www.bananaprompts.xyz/api/prompts?page={{ $json.page }}&limit=100&sort=newest"
+            },
+            "position": [
+                528,
+                0
+            ],
+            "retryOnFail": true,
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "waitBetweenTries": 2000
+        },
+        {
+            "id": "a1b2c3d4-0004",
+            "name": "Filtrar & Transformar",
+            "parameters": {
+                "jsCode": "// BANCO DE PROMPTS — Filtragem e transformação\nconst input = $input.first().json;\nconst items = input.items || [];\nconst hasMore = input.hasMore || false;\nconst currentPage = input.offset !== undefined ? Math.floor(input.offset / 100) + 1 : 1;\n\nconst freePrompts = items.filter(item => !item.isPremium && item.prompt && item.prompt.trim() !== '');\n\nconst transformed = freePrompts.map(item => ({\n  json: {\n    original_id: item.id,\n    title: item.title,\n    full_prompt: item.prompt,\n    image_url: item.image || null,\n    author_name: item.creatorName || null,\n    tags: item.tags || [],\n    source_url: `https://www.bananaprompts.xyz/prompts/${item.id}`,\n    _meta: {\n      hasMore: hasMore,\n      nextPage: currentPage + 1,\n      processedInBatch: freePrompts.length\n    }\n  }\n}));\n\nif (transformed.length === 0 && hasMore) {\n  return [{ json: { _skip: true, _meta: { hasMore: true, nextPage: currentPage + 1, processedInBatch: 0 } } }];\n}\n\nif (transformed.length === 0 && !hasMore) {\n  return [{ json: { _done: true, _meta: { hasMore: false } } }];\n}\n\nreturn transformed;"
+            },
+            "position": [
+                784,
+                0
+            ],
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2
+        },
+        {
+            "id": "a1b2c3d4-0020",
+            "continueOnFail": true,
+            "maxTries": 2,
+            "name": "Buscar Detalhes",
+            "onError": "continueRegularOutput",
+            "parameters": {
+                "options": {},
+                "url": "=https://www.bananaprompts.xyz/api/prompts/{{ $json.original_id }}"
+            },
+            "position": [
+                1040,
+                0
+            ],
+            "retryOnFail": true,
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "waitBetweenTries": 1000
+        },
+        {
+            "id": "a1b2c3d4-0021",
+            "name": "Extrair Model Name",
+            "parameters": {
+                "jsCode": "// BANCO DE PROMPTS — Extrai model_name da API de detalhes\nconst items = $input.all();\n\nreturn items.map(item => {\n  const json = item.json;\n  \n  if (json._skip || json._done || json.error) {\n    return item;\n  }\n  \n  const modelName = json.model || json.tool || json.generator || json.modelName || json.ai_model || null;\n  \n  return {\n    json: {\n      original_id: json.original_id || json.id,\n      title: json.title,\n      full_prompt: json.full_prompt || json.prompt,\n      image_url: json.image_url || json.image || null,\n      author_name: json.author_name || json.creatorName || null,\n      tags: json.tags || [],\n      source_url: json.source_url || `https://www.bananaprompts.xyz/prompts/${json.original_id || json.id}`,\n      model_name: modelName,\n      _meta: json._meta || {}\n    }\n  };\n});"
+            },
+            "position": [
+                1296,
+                0
+            ],
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2
+        },
+        {
+            "id": "a1b2c3d4-0010",
+            "name": "Tem Original ID?",
+            "parameters": {
+                "conditions": {
+                    "combinator": "and",
+                    "conditions": [
+                        {
+                            "id": "cond_has_original_id",
+                            "leftValue": "={{ !!$json.original_id }}",
+                            "operator": {
+                                "operation": "true",
+                                "singleValue": true,
+                                "type": "boolean"
+                            },
+                            "rightValue": ""
+                        }
+                    ],
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 3
+                    }
+                },
+                "options": {}
+            },
+            "position": [
+                1552,
+                0
+            ],
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.3
+        },
+        {
+            "id": "a1b2c3d4-0006",
+            "name": "Salvar no Supabase",
+            "parameters": {
+                "tableId": "prompts_vault",
+                "dataToSend": "autoMapInputData",
+                "inputsToIgnore": "_meta"
+            },
+            "position": [
+                1808,
+                -144
+            ],
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "credentials": {
+                "supabaseApi": {
+                    "id": "ta1XyquWeL2aUlgz",
+                    "name": "bancodeprompts"
+                }
+            }
+        },
+        {
+            "id": "a1b2c3d4-0007",
+            "name": "Check Pagination",
+            "parameters": {
+                "jsCode": "// BANCO DE PROMPTS — Controle de paginação\nconst items = $input.all();\nlet hasMore = false;\nlet nextPage = 1;\n\nfor (const item of items) {\n  const meta = item.json._meta;\n  if (meta) {\n    hasMore = meta.hasMore;\n    nextPage = meta.nextPage;\n    break;\n  }\n}\n\nconst maxPages = 1;\nconst dentroDoLimite = nextPage <= maxPages;\n\nreturn [{\n  json: {\n    page: nextPage,\n    hasMore: hasMore,\n    continue: hasMore === true && dentroDoLimite\n  }\n}];"
+            },
+            "position": [
+                2064,
+                16
+            ],
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2
+        },
+        {
+            "id": "a1b2c3d4-0008",
+            "name": "Mais Páginas?",
+            "parameters": {
+                "conditions": {
+                    "combinator": "and",
+                    "conditions": [
+                        {
+                            "id": "cond_continue",
+                            "leftValue": "={{ $json.continue }}",
+                            "operator": {
+                                "operation": "true",
+                                "singleValue": true,
+                                "type": "boolean"
+                            },
+                            "rightValue": ""
+                        }
+                    ],
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 3
+                    }
+                },
+                "options": {}
+            },
+            "position": [
+                2320,
+                0
+            ],
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.3
+        }
+    ],
+    "connections": {
+        "Agendamento Diário": {
+            "main": [
+                [
+                    {
+                        "index": 0,
+                        "node": "Iniciar Contador",
+                        "type": "main"
+                    }
+                ]
+            ]
+        },
+        "Iniciar Contador": {
+            "main": [
+                [
+                    {
+                        "index": 0,
+                        "node": "Buscar Página de Prompts",
+                        "type": "main"
+                    }
+                ]
+            ]
+        },
+        "Buscar Página de Prompts": {
+            "main": [
+                [
+                    {
+                        "index": 0,
+                        "node": "Filtrar & Transformar",
+                        "type": "main"
+                    }
+                ]
+            ]
+        },
+        "Filtrar & Transformar": {
+            "main": [
+                [
+                    {
+                        "index": 0,
+                        "node": "Buscar Detalhes",
+                        "type": "main"
+                    }
+                ]
+            ]
+        },
+        "Buscar Detalhes": {
+            "main": [
+                [
+                    {
+                        "index": 0,
+                        "node": "Extrair Model Name",
+                        "type": "main"
+                    }
+                ]
+            ]
+        },
+        "Extrair Model Name": {
+            "main": [
+                [
+                    {
+                        "index": 0,
+                        "node": "Tem Original ID?",
+                        "type": "main"
+                    }
+                ]
+            ]
+        },
+        "Tem Original ID?": {
+            "main": [
+                [
+                    {
+                        "index": 0,
+                        "node": "Salvar no Supabase",
+                        "type": "main"
+                    }
+                ],
+                [
+                    {
+                        "index": 0,
+                        "node": "Check Pagination",
+                        "type": "main"
+                    }
+                ]
+            ]
+        },
+        "Salvar no Supabase": {
+            "main": [
+                [
+                    {
+                        "index": 0,
+                        "node": "Check Pagination",
+                        "type": "main"
+                    }
+                ]
+            ]
+        },
+        "Check Pagination": {
+            "main": [
+                [
+                    {
+                        "index": 0,
+                        "node": "Mais Páginas?",
+                        "type": "main"
+                    }
+                ]
+            ]
+        },
+        "Mais Páginas?": {
+            "main": [
+                [
+                    {
+                        "index": 0,
+                        "node": "Buscar Página de Prompts",
+                        "type": "main"
+                    }
+                ],
+                []
+            ]
+        }
+    },
+    "settings": {
+        "executionOrder": "v1",
+        "saveDataErrorExecution": "all",
+        "saveDataSuccessExecution": "all",
+        "timezone": "America/Sao_Paulo"
+    }
+}

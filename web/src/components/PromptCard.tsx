@@ -45,14 +45,14 @@ export default function PromptCard({ prompt }: PromptCardProps) {
         placeholderGradients.length;
 
     return (
-        <div className="group relative rounded-2xl overflow-hidden bg-[var(--bg-card)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+        <div className="group relative rounded-2xl overflow-hidden bg-[var(--bg-card)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-300 hover:-translate-y-1 cursor-pointer aspect-[3/4]">
             {/* Image */}
-            <div className="relative aspect-[4/3] overflow-hidden">
+            <div className="absolute inset-0 overflow-hidden">
                 {prompt.image_url ? (
                     <img
                         src={prompt.image_url}
                         alt={prompt.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
                     />
                 ) : (
@@ -73,10 +73,10 @@ export default function PromptCard({ prompt }: PromptCardProps) {
                 </div>
             </div>
 
-            {/* Bottom content */}
-            <div className="p-4">
+            {/* Overlay gradient */}
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pt-16">
                 {/* Prompt preview */}
-                <p className="text-sm text-gray-300 leading-relaxed line-clamp-3 mb-3 min-h-[3.75rem]">
+                <p className="text-sm text-white/90 leading-relaxed line-clamp-3 mb-3">
                     {prompt.full_prompt}
                 </p>
 
@@ -85,8 +85,8 @@ export default function PromptCard({ prompt }: PromptCardProps) {
                     <button
                         onClick={handleCopy}
                         className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-200 ${copied
-                                ? "bg-emerald-500/20 text-emerald-400"
-                                : "bg-white/10 text-white hover:bg-white/20"
+                            ? "bg-emerald-500/20 text-emerald-400"
+                            : "bg-white/10 text-white hover:bg-white/20"
                             }`}
                     >
                         {copied ? (
@@ -108,9 +108,9 @@ export default function PromptCard({ prompt }: PromptCardProps) {
                     </button>
 
                     {prompt.author_name && (
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-white/60">
                             por{" "}
-                            <span className="text-gray-300 font-medium">
+                            <span className="text-white/80 font-medium">
                                 {prompt.author_name}
                             </span>
                         </span>

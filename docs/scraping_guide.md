@@ -6,87 +6,107 @@ Documentação da automação de extração de prompts do [bananaprompts.xyz](ht
 
 | Aspecto | Detalhe |
 |---------|---------|
-| **Workflow n8n** | `BANCO DE PROMPTS - Deep Scraper` (ID: `tKRng0JHYv4y5lTa`) |
-| **Instância** | `https://n8n.destraveacademy.com` |
-| **Agendamento** | Diário às 03:00 AM (America/Sao_Paulo) |
-| **Tabela destino** | `public.prompts_vault` (Supabase) |
-| **Credencial** | `bancodeprompts` (Supabase API — ID: `ta1XyquWeL2aUlgz`) |
-| **Arquivo local** | `automations/n8n/deep_scraper_bancodeprompts.json` |
+| **Workflow n8n** | `BANCO DE PROMPTS - Deep Scraper` |
+| **ID** | `tKRng0JHYv4y5lTa` |
+| **Versão** | V4 FINAL (com `model_name`) |
+| **Nós** | 10 |
+| **Schedule** | Diário, 03:00 (São Paulo) |
+| **Tabela Supabase** | `prompts_vault` |
+| **Credencial** | `bancodeprompts` (`ta1XyquWeL2aUlgz`) |
+| **JSON** | `automations/n8n/deep_scraper_bancodeprompts_V4_FINAL.json` |
 
-## Estratégia de Crescimento Controlado
+## Fluxo do Workflow (V4)
 
-| Fase | maxPages | Prompts estimados | Quando avançar |
-|------|----------|-------------------|----------------|
-| **Teste** | `1` | ~100 | Verificar se o upsert funciona |
-| **Expansão** | `5` | ~500 | Após confirmar dados no Supabase |
-| **Crescimento** | `10` | ~1.000 | Após validar performance |
-| **Completo** | `999` | ~6.000+ | Sistema estável |
-
-Altere `const maxPages = 1;` nos nós **Iniciar Contador** e **Check Pagination**.
-
-## Fluxo do Workflow (8 nós)
-
-```mermaid
-graph LR
-    A["⏰ Agendamento Diário"] --> B["📄 Iniciar Contador"]
-    B --> C["📡 Buscar Página"]
-    C --> D["🔄 Filtrar & Transformar"]
-    D --> E["❓ Tem Original ID?"]
-    E -->|True| F["💾 Salvar no Supabase"]
-    E -->|False| G["📊 Check Pagination"]
-    F --> G
-    G --> H["❓ Mais Páginas?"]
-    H -->|True| C
+```
+Agendamento Diário
+  → Iniciar Contador (maxPages=1)
+    → Buscar Página de Prompts (GET /api/prompts?page=N)
+      → Filtrar & Transformar (remove premium, normaliza schema)
+        → Buscar Detalhes (GET /api/prompts/{id}) ← NOVO
+          → Extrair Model Name (model/tool/generator) ← NOVO
+            → Tem Original ID? (Boolean: !!$json.original_id)
+              ├─ True  → Salvar no Supabase → Check Pagination
+              └─ False ────────────────────→ Check Pagination
+                                                → Mais Páginas?
+                                                  ├─ True  → Loop (Buscar Página)
+                                                  └─ False → FIM
 ```
 
-## Configuração do Supabase (Salvar no Supabase)
+## Nós — Detalhamento
 
-| Config | Valor | Motivo |
-|--------|-------|--------|
-| **Operação** | `create` | Supabase trata upsert via PostgREST + UNIQUE constraint |
-| **Tabela** | `prompts_vault` | — |
-| **Data to Send** | `Auto-Map Input Data` | Mapeia campos do JSON direto para colunas |
-| **Inputs to Ignore** | `_meta` | Exclui metadados de paginação do INSERT |
-| **Credencial** | `bancodeprompts` (ID: `ta1XyquWeL2aUlgz`) | Supabase API |
+### 1. Agendamento Diário
+- **Tipo:** Schedule Trigger
+- **Cron:** `0 3 * * *` (03h diariamente)
 
-### Como funciona o Upsert
+### 2. Iniciar Contador
+- **Tipo:** Code
+- **maxPages:** 1 (limite de segurança, aumente gradualmente)
 
-O nó Supabase v1 **não tem operação "upsert" nativa**. O upsert é garantido pela constraint UNIQUE no banco:
+### 3. Buscar Página de Prompts
+- **Tipo:** HTTP Request (GET)
+- **URL:** `https://www.bananaprompts.xyz/api/prompts?page={{page}}&limit=100&sort=newest`
+- **Retry:** 3 tentativas, 2s entre cada
 
-1. `original_id` tem constraint `prompts_vault_original_id_key`
-2. Se o `original_id` já existe → o Supabase retorna erro 409 (conflict)
-3. O n8n continua para o próximo item (não para o workflow)
+### 4. Filtrar & Transformar
+- **Tipo:** Code
+- Remove prompts premium e vazios
+- Normaliza para schema: `original_id`, `title`, `full_prompt`, `image_url`, `author_name`, `tags`, `source_url`
 
-### Mapeamento Automático (autoMapInputData)
+### 5. Buscar Detalhes ← NOVO (V4)
+- **Tipo:** HTTP Request (GET)
+- **URL:** `https://www.bananaprompts.xyz/api/prompts/{{ $json.original_id }}`
+- **continueOnFail:** `true` (se a API falhar, pula o item)
+- **Retry:** 2 tentativas, 1s entre cada
+- **Propósito:** Obter detalhes do prompt (incluindo modelo de IA)
 
-Os campos do JSON de entrada são mapeados **automaticamente** para as colunas do Supabase:
+### 6. Extrair Model Name ← NOVO (V4)
+- **Tipo:** Code
+- Tenta extrair de: `model`, `tool`, `generator`, `modelName`, `ai_model`
+- Preserva todos os campos originais + adiciona `model_name`
+- Se houve erro na requisição anterior, passa o item sem alterar
 
-| Campo no JSON | Coluna no Supabase |
-|---|---|
-| `original_id` | `original_id` |
-| `title` | `title` |
-| `full_prompt` | `full_prompt` |
-| `image_url` | `image_url` |
-| `author_name` | `author_name` |
-| `tags` | `tags` |
-| `source_url` | `source_url` |
-| `_meta` | ❌ **Excluído** via `inputsToIgnore` |
+### 7. Tem Original ID?
+- **Tipo:** If (Boolean)
+- **Expressão:** `={{ !!$json.original_id }}` → `is true`
 
-## Nós e Versões
+### 8. Salvar no Supabase
+- **Operação:** create
+- **Data to Send:** Auto-Map Input Data
+- **Inputs to Ignore:** `_meta`
+- **Colunas mapeadas:** `original_id`, `title`, `full_prompt`, `image_url`, `author_name`, `tags`, `source_url`, `model_name`
 
-| Nó | Tipo | Versão |
-|---|---|---|
-| **Agendamento Diário** | scheduleTrigger | 1.3 |
-| **Iniciar Contador** | code | 2 |
-| **Buscar Página de Prompts** | httpRequest | 4.2 |
-| **Filtrar & Transformar** | code | 2 |
-| **Tem Original ID?** | if | 2.3 |
-| **Salvar no Supabase** | supabase | 1 |
-| **Check Pagination** | code | 2 |
-| **Mais Páginas?** | if | 2.3 |
+### 9–10. Check Pagination + Mais Páginas?
+- Controle de loop com `maxPages` como limite
 
-## Pré-requisitos
+## Configuração Supabase
 
-1. Credencial `bancodeprompts` configurada na instância
-2. Tabela `prompts_vault` criada (`supabase/migrations/001_initial_schema.sql`)
-3. Ativar workflow no n8n
+### Schema `prompts_vault`
+
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| `id` | UUID (PK) | Gerado automaticamente |
+| `original_id` | TEXT (UNIQUE) | ID do prompt no bananaprompts |
+| `title` | TEXT | Título do prompt |
+| `full_prompt` | TEXT | Texto completo do prompt |
+| `image_url` | TEXT | URL da imagem gerada |
+| `author_name` | TEXT | Nome do criador |
+| `tags` | TEXT[] | Array de tags |
+| `source_url` | TEXT | Link original |
+| `model_name` | TEXT | Modelo/ferramenta de IA ← NOVO |
+| `captured_at` | TIMESTAMPTZ | Data de captura |
+
+### Migração para V4
+
+```sql
+-- supabase/migrations/002_add_model_name.sql
+ALTER TABLE prompts_vault
+ADD COLUMN IF NOT EXISTS model_name TEXT DEFAULT NULL;
+```
+
+> **Importante:** Execute esta migração no Supabase SQL Editor antes de rodar o workflow V4.
+
+## Estabilidade
+
+- `continueOnFail: true` no nó Buscar Detalhes → se a API de detalhes falhar, o prompt é salvo sem model_name
+- `retryOnFail` com `maxTries` em ambos HTTP Requests
+- `onError: continueRegularOutput` → erros não param o workflow
