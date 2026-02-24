@@ -99,7 +99,7 @@ export default function HomePage() {
           BIBLIOTECA COMUNITÁRIA
         </span>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--text)] leading-tight mb-3 max-w-2xl">
-          Explore os prompts que a comunidade está compartilhando.
+          Explore os prompts que a comunidade está Compartilhando.
         </h1>
         <p className="text-base sm:text-lg text-[var(--text-muted)] max-w-xl mb-8">
           Navegue por imagens geradas com IA e os prompts por trás delas. Copie,

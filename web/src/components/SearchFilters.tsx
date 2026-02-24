@@ -207,12 +207,12 @@ export default function SearchFilters({
                         <div key={category.title}>
                             <button
                                 onClick={() => toggleCategory(category.title)}
-                                className="flex items-center justify-between w-full text-left mb-2 group"
+                                className="flex items-center justify-between w-full text-left mb-2 group cursor-pointer hover:bg-slate-50 rounded-lg px-2 py-1 -mx-2 transition-all duration-200"
                             >
                                 <span
                                     className={`text-[10px] font-bold tracking-[0.12em] uppercase ${hasActiveTags
-                                            ? "text-[var(--accent)]"
-                                            : "text-[var(--text-muted)]"
+                                        ? "text-[var(--accent)]"
+                                        : "text-[var(--text-muted)]"
                                         }`}
                                 >
                                     {category.title}
@@ -240,9 +240,9 @@ export default function SearchFilters({
                                             <button
                                                 key={tag}
                                                 onClick={() => onTagToggle(tag)}
-                                                className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-all duration-200 ${isActive
-                                                        ? "bg-[var(--accent)] text-white shadow-sm"
-                                                        : "bg-[var(--bg-subtle)] text-[var(--text-muted)] hover:bg-[var(--accent-light)] hover:text-[var(--accent)] border border-[var(--border)]"
+                                                className={`px-2.5 py-1 rounded-full text-[11px] font-medium cursor-pointer transition-all duration-200 ${isActive
+                                                        ? "bg-[var(--accent)] text-white shadow-sm ring-2 ring-[var(--accent)]/30"
+                                                        : "bg-[var(--bg-subtle)] text-[var(--text-muted)] hover:bg-slate-100 hover:text-[var(--accent)] border border-[var(--border)] hover:border-[var(--accent)]/40"
                                                     }`}
                                             >
                                                 {tag}

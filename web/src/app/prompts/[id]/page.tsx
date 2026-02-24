@@ -177,8 +177,8 @@ export default function PromptDetailPage({
                             <button
                                 onClick={handleCopy}
                                 className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${copied
-                                        ? "bg-emerald-500 text-white"
-                                        : "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] shadow-sm"
+                                    ? "bg-emerald-500 text-white"
+                                    : "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] shadow-sm"
                                     }`}
                             >
                                 {copied ? (
@@ -217,31 +217,33 @@ export default function PromptDetailPage({
                                 )}
                             </button>
 
-                            {/* Onde Usar */}
-                            <div className="mt-8">
-                                <h3 className="text-xs font-bold tracking-[0.15em] uppercase text-[var(--text-muted)] mb-3">
-                                    ONDE USAR
-                                </h3>
-                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-50 border border-[var(--border)] rounded-xl">
-                                    <svg
-                                        width="16"
-                                        height="16"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="var(--accent)"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    >
-                                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                                        <path d="M2 17l10 5 10-5" />
-                                        <path d="M2 12l10 5 10-5" />
-                                    </svg>
-                                    <span className="text-sm font-medium text-[var(--text)]">
-                                        {prompt.model_name || "Não especificado"}
-                                    </span>
+                            {/* Onde Usar — só exibe se model_name existir */}
+                            {prompt.model_name && (
+                                <div className="mt-8">
+                                    <h3 className="text-xs font-bold tracking-[0.15em] uppercase text-[var(--text-muted)] mb-3">
+                                        ONDE USAR
+                                    </h3>
+                                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-50 border border-[var(--border)] rounded-xl">
+                                        <svg
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="var(--accent)"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        >
+                                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                            <path d="M2 17l10 5 10-5" />
+                                            <path d="M2 12l10 5 10-5" />
+                                        </svg>
+                                        <span className="text-sm font-medium text-[var(--text)]">
+                                            {prompt.model_name}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* Tags */}
                             {prompt.tags && prompt.tags.length > 0 && (
@@ -262,33 +264,6 @@ export default function PromptDetailPage({
                                 </div>
                             )}
 
-                            {/* Source link */}
-                            {prompt.source_url && (
-                                <div className="mt-8 pt-6 border-t border-[var(--border)]">
-                                    <a
-                                        href={prompt.source_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1.5 text-xs text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors no-underline"
-                                    >
-                                        <svg
-                                            width="12"
-                                            height="12"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        >
-                                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                                            <polyline points="15 3 21 3 21 9" />
-                                            <line x1="10" y1="14" x2="21" y2="3" />
-                                        </svg>
-                                        Ver no site original
-                                    </a>
-                                </div>
-                            )}
                         </div>
                     </div>
                 )}

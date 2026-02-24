@@ -1,10 +1,7 @@
-feat: pagina de detalhes individual do prompt
+style: polimento final - cursor, hover, hero text, onde usar condicional
 
-- Nova rota /prompts/[id] com layout duas colunas
-- Imagem grande com bordas arredondadas e sombra
-- Bloco de prompt com fundo slate-50 e botao Copiar
-- Secao Onde Usar com model_name do Supabase
-- Tags como pills arredondados
-- Loading skeleton durante carregamento
-- Estado 404 para prompts inexistentes
-- PromptCard agora navega para pagina de detalhes
+- Onde Usar so exibe se model_name existir
+- Removido link Ver no site original
+- cursor-pointer em todos os chips e categorias dos filtros
+- hover:bg-slate-100 e ring-2 nos filtros ativos
+- Compartilhando com C maiusculo no hero
