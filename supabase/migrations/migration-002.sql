@@ -1,7 +1,7 @@
 -- =============================================================================
 -- Migration: 002_create_automation_config.sql
 -- Descrição: Tabela de estado persistido para a automação n8n.
--- Permite que o workflow retome de onde parou entre execuções diárias.
+-- Permite que o workflow retome de onde parou entre execuções.
 -- Criado em: 2026-02-24
 -- =============================================================================
 
@@ -18,23 +18,16 @@ COMMENT ON COLUMN public.automation_config.value IS 'Estado serializado em JSON 
 -- =============================================================================
 -- Estado inicial do coletor de prompts (banana_prompts_state)
 --
--- last_good_offset : último offset onde foram encontrados prompts novos
---                    (ponto de retomada na próxima execução diária)
--- current_offset   : offset da iteração atual dentro do mesmo dia
--- novos_hoje       : contador de novos prompts na execução corrente
--- totalVerificados : total de prompts verificados na execução corrente
--- last_run_date    : data da última execução (formato YYYY-MM-DD)
+-- pagina_atual : página atual da paginação (incrementa a cada execução)
+-- total_salvo  : total acumulado de prompts salvos no vault
 -- =============================================================================
 
 INSERT INTO public.automation_config (key, value)
 VALUES (
     'banana_prompts_state',
     '{
-        "last_good_offset": 0,
-        "current_offset": 0,
-        "novos_hoje": 0,
-        "totalVerificados": 0,
-        "last_run_date": null
+        "pagina_atual": 0,
+        "total_salvo": 0
     }'::jsonb
 )
 ON CONFLICT (key) DO NOTHING;
