@@ -82,8 +82,8 @@ export default function PromptCard({ prompt }: PromptCardProps) {
                         {prompt.full_prompt}
                     </p>
 
-                    {/* Footer: Copy button + Author */}
-                    <div className="flex items-center justify-between">
+                    {/* Footer: Copy button */}
+                    <div className="flex items-center">
                         <button
                             onClick={handleCopy}
                             className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-200 ${copied
@@ -108,15 +108,6 @@ export default function PromptCard({ prompt }: PromptCardProps) {
                                 </>
                             )}
                         </button>
-
-                        {prompt.author_name && (
-                            <span className="text-xs text-white/60">
-                                por{" "}
-                                <span className="text-white/80 font-medium">
-                                    {prompt.author_name}
-                                </span>
-                            </span>
-                        )}
                     </div>
                 </div>
             </div>

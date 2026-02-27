@@ -1,26 +1,124 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase, type Prompt } from "@/lib/supabase";
 import SearchFilters from "@/components/SearchFilters";
 import PromptGrid from "@/components/PromptGrid";
 
+const PAGE_SIZE = 30;
+
 export default function HomePage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Inicializar estado a partir da URL
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [filteredPrompts, setFilteredPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeTags, setActiveTags] = useState<string[]>([]);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("q") || ""
+  );
+  const [activeTags, setActiveTags] = useState<string[]>(() => {
+    const tags = searchParams.get("tags");
+    return tags ? tags.split(",").map((t) => t.trim()).filter(Boolean) : [];
+  });
+  const [activeModel, setActiveModel] = useState(
+    searchParams.get("modelo") || ""
+  );
 
-  // Fetch prompts from Supabase
+  // Tags e modelos disponíveis (carregados uma vez separadamente)
+  const [allTags, setAllTags] = useState<string[]>([]);
+  const [allModels, setAllModels] = useState<string[]>([]);
+
+  // Ref para evitar fetch duplo no mount
+  const hasFetched = useRef(false);
+  const currentPage = useRef(0);
+
+  // Sincronizar URL com filtros
+  const updateUrl = useCallback(
+    (q: string, tags: string[], modelo: string) => {
+      const params = new URLSearchParams();
+      if (q.trim()) params.set("q", q.trim());
+      if (tags.length > 0) params.set("tags", tags.join(","));
+      if (modelo) params.set("modelo", modelo);
+
+      const queryString = params.toString();
+      router.replace(queryString ? `?${queryString}` : "/", {
+        scroll: false,
+      });
+    },
+    [router]
+  );
+
+  // Buscar todos os tags e modelos disponíveis (uma vez no mount)
   useEffect(() => {
-    async function fetchPrompts() {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("prompts_vault")
+    async function fetchFilterOptions() {
+      const { data } = await supabase
+        .from("published_prompts_view")
+        .select("tags, model_name");
+
+      if (!data) return;
+
+      const tagSet = new Set<string>();
+      const modelSet = new Set<string>();
+
+      data.forEach((row) => {
+        if (row.tags && Array.isArray(row.tags)) {
+          row.tags.forEach((t: string) => {
+            if (t && t.trim()) tagSet.add(t.trim());
+          });
+        }
+        if (row.model_name && row.model_name.trim()) {
+          modelSet.add(row.model_name.trim());
+        }
+      });
+
+      setAllTags(Array.from(tagSet).sort());
+      setAllModels(Array.from(modelSet).sort());
+    }
+
+    fetchFilterOptions();
+  }, []);
+
+  // Construir query base com filtros
+  const buildQuery = useCallback(
+    (modelo: string, tags: string[]) => {
+      let query = supabase
+        .from("published_prompts_view")
         .select("*")
-        .order("captured_at", { ascending: false })
-        .limit(200);
+        .order("captured_at", { ascending: false });
+
+      // Filtro server-side: modelo (case-insensitive via ilike)
+      if (modelo) {
+        query = query.ilike("model_name", modelo);
+      }
+
+      // Filtro server-side: tags (overlaps = qualquer uma das tags selecionadas)
+      if (tags.length > 0) {
+        query = query.overlaps("tags", tags);
+      }
+
+      return query;
+    },
+    []
+  );
+
+  // Fetch primeira página de prompts
+  const fetchPrompts = useCallback(
+    async (modelo: string, tags: string[]) => {
+      setLoading(true);
+      setPrompts([]);
+      setFilteredPrompts([]);
+      currentPage.current = 0;
+      setHasMore(true);
+
+      const from = 0;
+      const to = PAGE_SIZE - 1;
+
+      const { data, error } = await buildQuery(modelo, tags).range(from, to);
 
       if (error) {
         console.error("Erro ao buscar prompts:", error);
@@ -28,68 +126,127 @@ export default function HomePage() {
         return;
       }
 
-      setPrompts(data || []);
-      setFilteredPrompts(data || []);
+      const results = data || [];
+      setPrompts(results);
+      setFilteredPrompts(results);
+      setHasMore(results.length === PAGE_SIZE);
       setLoading(false);
+    },
+    [buildQuery]
+  );
+
+  // Fetch próxima página (chamado pelo IntersectionObserver)
+  const loadMore = useCallback(async () => {
+    if (loadingMore || !hasMore) return;
+
+    setLoadingMore(true);
+    const nextPage = currentPage.current + 1;
+    const from = nextPage * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+
+    const { data, error } = await buildQuery(activeModel, activeTags).range(
+      from,
+      to
+    );
+
+    if (error) {
+      console.error("Erro ao carregar mais prompts:", error);
+      setLoadingMore(false);
+      return;
     }
 
-    fetchPrompts();
-  }, []);
+    const results = data || [];
 
-  // Filter logic
+    setPrompts((prev) => [...prev, ...results]);
+    setFilteredPrompts((prev) => {
+      const newItems = searchQuery.trim()
+        ? results.filter((p) => {
+          const q = searchQuery.toLowerCase();
+          return (
+            p.title.toLowerCase().includes(q) ||
+            p.full_prompt.toLowerCase().includes(q)
+          );
+        })
+        : results;
+      return [...prev, ...newItems];
+    });
+
+    currentPage.current = nextPage;
+    setHasMore(results.length === PAGE_SIZE);
+    setLoadingMore(false);
+  }, [loadingMore, hasMore, activeModel, activeTags, searchQuery, buildQuery]);
+
+  // Fetch inicial + refetch quando modelo ou tags mudam
   useEffect(() => {
-    let result = prompts;
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      fetchPrompts(activeModel, activeTags);
+      return;
+    }
+    fetchPrompts(activeModel, activeTags);
+  }, [activeModel, activeTags, fetchPrompts]);
 
-    // Text search
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.title.toLowerCase().includes(q) ||
-          p.full_prompt.toLowerCase().includes(q) ||
-          (p.author_name && p.author_name.toLowerCase().includes(q))
-      );
+  // Filtro client-side: busca por texto (opera sobre dados já carregados)
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredPrompts(prompts);
+      return;
     }
 
-    // Tag filtering
-    if (activeTags.length > 0) {
-      result = result.filter((p) => {
-        const promptText = `${p.title} ${p.full_prompt} ${(p.tags || []).join(" ")}`.toLowerCase();
-        return activeTags.some((tag) => promptText.includes(tag.toLowerCase()));
-      });
-    }
+    const q = searchQuery.toLowerCase();
+    const result = prompts.filter(
+      (p) =>
+        p.title.toLowerCase().includes(q) ||
+        p.full_prompt.toLowerCase().includes(q)
+    );
 
     setFilteredPrompts(result);
-  }, [searchQuery, activeTags, prompts]);
+  }, [searchQuery, prompts]);
 
-  const handleSearchChange = useCallback((query: string) => {
-    setSearchQuery(query);
-  }, []);
+  const handleSearchChange = useCallback(
+    (query: string) => {
+      setSearchQuery(query);
+      updateUrl(query, activeTags, activeModel);
+    },
+    [activeTags, activeModel, updateUrl]
+  );
 
-  const handleTagToggle = useCallback((tag: string) => {
-    setActiveTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
-  }, []);
+  const handleTagToggle = useCallback(
+    (tag: string) => {
+      setActiveTags((prev) => {
+        const next = prev.includes(tag)
+          ? prev.filter((t) => t !== tag)
+          : [...prev, tag];
+        updateUrl(searchQuery, next, activeModel);
+        return next;
+      });
+    },
+    [searchQuery, activeModel, updateUrl]
+  );
 
-  // Extract unique tags and model names from prompts
-  const dynamicTags = useMemo(() => {
-    const tagSet = new Set<string>();
-    prompts.forEach((p) => {
-      if (p.tags && Array.isArray(p.tags)) {
-        p.tags.forEach((t) => tagSet.add(t));
-      }
-    });
-    return Array.from(tagSet).sort();
-  }, [prompts]);
+  const handleModelToggle = useCallback(
+    (model: string) => {
+      setActiveModel((prev) => {
+        const next =
+          prev.trim().toLowerCase() === model.trim().toLowerCase()
+            ? ""
+            : model;
+        updateUrl(searchQuery, activeTags, next);
+        return next;
+      });
+    },
+    [searchQuery, activeTags, updateUrl]
+  );
 
-  const modelNames = useMemo(() => {
-    const modelSet = new Set<string>();
-    prompts.forEach((p) => {
-      if (p.model_name) modelSet.add(p.model_name);
-    });
-    return Array.from(modelSet).sort();
-  }, [prompts]);
+  // Contador total (inclui "mais" se há paginação)
+  const totalLabel = useMemo(() => {
+    if (loading) return "";
+    const showing = filteredPrompts.length;
+    if (hasMore) {
+      return `${showing}+ prompts disponíveis`;
+    }
+    return `${showing} prompts disponíveis`;
+  }, [filteredPrompts.length, hasMore, loading]);
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">
@@ -112,27 +269,31 @@ export default function HomePage() {
         <SearchFilters
           onSearchChange={handleSearchChange}
           onTagToggle={handleTagToggle}
+          onModelToggle={handleModelToggle}
           activeTags={activeTags}
+          activeModel={activeModel}
           searchQuery={searchQuery}
-          dynamicTags={dynamicTags}
-          modelNames={modelNames}
+          dynamicTags={allTags}
+          modelNames={allModels}
         />
       </section>
 
       {/* Results counter */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
         {!loading && (
-          <p className="text-sm text-[var(--text-muted)]">
-            {filteredPrompts.length === prompts.length
-              ? `${prompts.length} prompts disponíveis`
-              : `${filteredPrompts.length} de ${prompts.length} prompts`}
-          </p>
+          <p className="text-sm text-[var(--text-muted)]">{totalLabel}</p>
         )}
       </section>
 
       {/* Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <PromptGrid prompts={filteredPrompts} loading={loading} />
+        <PromptGrid
+          prompts={filteredPrompts}
+          loading={loading}
+          loadingMore={loadingMore}
+          hasMore={hasMore}
+          onLoadMore={loadMore}
+        />
       </section>
 
       {/* About / Footer */}

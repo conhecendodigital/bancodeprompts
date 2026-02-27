@@ -1,9 +1,15 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import PromptCard from "./PromptCard";
 import type { Prompt } from "@/lib/supabase";
 
 interface PromptGridProps {
     prompts: Prompt[];
     loading: boolean;
+    loadingMore?: boolean;
+    hasMore?: boolean;
+    onLoadMore?: () => void;
 }
 
 function SkeletonCard() {
@@ -23,7 +29,38 @@ function SkeletonCard() {
     );
 }
 
-export default function PromptGrid({ prompts, loading }: PromptGridProps) {
+export default function PromptGrid({
+    prompts,
+    loading,
+    loadingMore = false,
+    hasMore = false,
+    onLoadMore,
+}: PromptGridProps) {
+    const sentinelRef = useRef<HTMLDivElement>(null);
+
+    // IntersectionObserver para paginação infinita
+    useEffect(() => {
+        if (!onLoadMore || !hasMore || loading) return;
+
+        const sentinel = sentinelRef.current;
+        if (!sentinel) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && hasMore && !loadingMore) {
+                    onLoadMore();
+                }
+            },
+            { rootMargin: "200px" }
+        );
+
+        observer.observe(sentinel);
+
+        return () => {
+            observer.disconnect();
+        };
+    }, [onLoadMore, hasMore, loading, loadingMore]);
+
     if (loading) {
         return (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -63,10 +100,26 @@ export default function PromptGrid({ prompts, loading }: PromptGridProps) {
     }
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {prompts.map((prompt) => (
-                <PromptCard key={prompt.id} prompt={prompt} />
-            ))}
-        </div>
+        <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {prompts.map((prompt) => (
+                    <PromptCard key={prompt.id} prompt={prompt} />
+                ))}
+            </div>
+
+            {/* Sentinel para infinite scroll */}
+            {hasMore && (
+                <div ref={sentinelRef} className="mt-8">
+                    {loadingMore && (
+                        <div className="flex items-center justify-center gap-3 py-8">
+                            <div className="w-5 h-5 border-2 border-[var(--accent)]/30 border-t-[var(--accent)] rounded-full animate-spin" />
+                            <span className="text-sm text-[var(--text-muted)]">
+                                Carregando mais prompts...
+                            </span>
+                        </div>
+                    )}
+                </div>
+            )}
+        </>
     );
 }

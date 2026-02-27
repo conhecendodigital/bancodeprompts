@@ -46,7 +46,7 @@ export default function PromptDetailPage({
         async function fetchPrompt() {
             setLoading(true);
             const { data, error } = await supabase
-                .from("prompts_vault")
+                .from("published_prompts_view")
                 .select("*")
                 .eq("original_id", id)
                 .limit(1)
@@ -152,19 +152,9 @@ export default function PromptDetailPage({
                         {/* Right column — Info */}
                         <div>
                             {/* Title */}
-                            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text)] leading-tight mb-2">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text)] leading-tight mb-6">
                                 {prompt.title}
                             </h1>
-
-                            {/* Author */}
-                            {prompt.author_name && (
-                                <p className="text-sm text-[var(--text-muted)] mb-6">
-                                    Compartilhado por{" "}
-                                    <span className="font-semibold text-[var(--text)]">
-                                        {prompt.author_name}
-                                    </span>
-                                </p>
-                            )}
 
                             {/* Prompt block */}
                             <div className="relative bg-slate-50 border border-[var(--border)] rounded-xl p-5 mb-4">

@@ -5,73 +5,57 @@ import { useCallback, useEffect, useState } from "react";
 interface FilterCategory {
     title: string;
     tags: string[];
+    isModel?: boolean;
 }
 
 interface SearchFiltersProps {
     onSearchChange: (query: string) => void;
     onTagToggle: (tag: string) => void;
+    onModelToggle: (model: string) => void;
     activeTags: string[];
+    activeModel: string;
     searchQuery: string;
     dynamicTags?: string[];
     modelNames?: string[];
 }
 
-// Tags base (sempre disponíveis como fallback)
-const BASE_CATEGORIES: FilterCategory[] = [
-    {
-        title: "ESTILOS ARTÍSTICOS",
-        tags: [
-            "Realista", "Cinemático", "Anime", "Arquitetura", "Cartoon",
-            "3D Render", "Vetor", "Aquarela", "Sketch / Line Art", "Óleo",
-            "Abstrato", "Surreal", "Moda", "Fotografia", "Retrato",
-        ],
-    },
-    {
-        title: "CORPORATIVO & PROFISSIONAL",
-        tags: [
-            "Corporativo", "Negócios", "Minimalista", "Moderno",
-            "Produto / Poster", "Logo", "Infográfico", "Concept Art",
-        ],
-    },
-    {
-        title: "GÊNERO & TEMAS",
-        tags: ["Fantasia", "Ficção Científica", "Cyberpunk", "Retrô / Vintage", "Grunge"],
-    },
-    {
-        title: "ATMOSFERA & TOM",
-        tags: ["Vibrante / Colorido", "Dark / Moody", "Elegante"],
-    },
-    {
-        title: "IDIOMA",
-        tags: ["Árabe", "Francês", "Inglês", "Espanhol", "Português"],
-    },
-];
+/**
+ * Deduplica uma lista de strings normalizando com trim + lowercase,
+ * mas preserva a capitalização da primeira ocorrência.
+ */
+function deduplicateStrings(items: string[]): string[] {
+    const seen = new Map<string, string>();
+    for (const item of items) {
+        const key = item.trim().toLowerCase();
+        if (key && !seen.has(key)) {
+            seen.set(key, item.trim());
+        }
+    }
+    return Array.from(seen.values());
+}
 
 function buildCategories(
     dynamicTags: string[],
     modelNames: string[]
 ): FilterCategory[] {
-    const categories: FilterCategory[] = [...BASE_CATEGORIES];
+    const categories: FilterCategory[] = [];
 
-    // Adiciona modelos de IA como categoria se houver dados
-    if (modelNames.length > 0) {
-        categories.unshift({
+    // Modelos de IA (campo model_name)
+    const uniqueModels = deduplicateStrings(modelNames);
+    if (uniqueModels.length > 0) {
+        categories.push({
             title: "MODELO DE IA",
-            tags: modelNames.slice(0, 20),
+            tags: uniqueModels,
+            isModel: true,
         });
     }
 
-    // Adiciona tags do banco que não estão nas categorias base
-    const allBaseTags = new Set(
-        BASE_CATEGORIES.flatMap((c) => c.tags.map((t) => t.toLowerCase()))
-    );
-    const extraTags = dynamicTags.filter(
-        (t) => !allBaseTags.has(t.toLowerCase())
-    );
-    if (extraTags.length > 0) {
+    // Tags dinâmicas do banco (campo tags[])
+    const uniqueTags = deduplicateStrings(dynamicTags);
+    if (uniqueTags.length > 0) {
         categories.push({
-            title: "TAGS DO BANCO",
-            tags: extraTags.slice(0, 30),
+            title: "CATEGORIAS",
+            tags: uniqueTags,
         });
     }
 
@@ -81,14 +65,16 @@ function buildCategories(
 export default function SearchFilters({
     onSearchChange,
     onTagToggle,
+    onModelToggle,
     activeTags,
+    activeModel,
     searchQuery,
     dynamicTags = [],
     modelNames = [],
 }: SearchFiltersProps) {
     const [localQuery, setLocalQuery] = useState(searchQuery);
     const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-        new Set(["MODELO DE IA"])
+        new Set(["MODELO DE IA", "CATEGORIAS"])
     );
 
     // Debounce da busca
@@ -117,6 +103,13 @@ export default function SearchFilters({
 
     const categories = buildCategories(dynamicTags, modelNames);
 
+    const totalActiveFilters = activeTags.length + (activeModel ? 1 : 0);
+
+    const handleClearAll = useCallback(() => {
+        activeTags.forEach((t) => onTagToggle(t));
+        if (activeModel) onModelToggle(activeModel);
+    }, [activeTags, activeModel, onTagToggle, onModelToggle]);
+
     return (
         <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-md rounded-2xl border border-[var(--border)] shadow-sm p-5">
             {/* Header */}
@@ -138,12 +131,12 @@ export default function SearchFilters({
                         REFINAR GALERIA
                     </h3>
                 </div>
-                {activeTags.length > 0 && (
+                {totalActiveFilters > 0 && (
                     <button
-                        onClick={() => activeTags.forEach((t) => onTagToggle(t))}
-                        className="text-[10px] font-semibold text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors uppercase tracking-wider"
+                        onClick={handleClearAll}
+                        className="text-[10px] font-semibold text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors uppercase tracking-wider cursor-pointer"
                     >
-                        Limpar Filtros ({activeTags.length})
+                        Limpar Filtros ({totalActiveFilters})
                     </button>
                 )}
             </div>
@@ -173,20 +166,32 @@ export default function SearchFilters({
                 />
             </div>
 
-            {/* Active tags indicator */}
-            {activeTags.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-4 pb-4 border-b border-[var(--border)]">
-                    <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider self-center mr-1">
+            {/* Active filters indicator */}
+            {totalActiveFilters > 0 && (
+                <div className="flex flex-wrap gap-2.5 mb-4 pb-4 border-b border-[var(--border)]">
+                    <span className="text-xs text-[var(--text-muted)] uppercase tracking-wider self-center mr-1 font-semibold">
                         Ativos:
                     </span>
+                    {activeModel && (
+                        <button
+                            onClick={() => onModelToggle(activeModel)}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-[var(--accent)] text-white transition-all hover:bg-[var(--accent-hover)] hover:scale-105 cursor-pointer shadow-md"
+                        >
+                            🤖 {activeModel}
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </button>
+                    )}
                     {activeTags.map((tag) => (
                         <button
                             key={`active-${tag}`}
                             onClick={() => onTagToggle(tag)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[var(--accent)] text-white transition-all hover:bg-[var(--accent-hover)]"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-[var(--accent)] text-white transition-all hover:bg-[var(--accent-hover)] hover:scale-105 cursor-pointer shadow-md"
                         >
                             {tag}
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
                                 <line x1="18" y1="6" x2="6" y2="18" />
                                 <line x1="6" y1="6" x2="18" y2="18" />
                             </svg>
@@ -195,13 +200,13 @@ export default function SearchFilters({
                 </div>
             )}
 
-            {/* Categories */}
+            {/* Categories — 100% dinâmicas do banco */}
             <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
                 {categories.map((category) => {
                     const isExpanded = expandedCategories.has(category.title);
-                    const hasActiveTags = category.tags.some((t) =>
-                        activeTags.includes(t)
-                    );
+                    const hasActiveTags = category.isModel
+                        ? !!activeModel
+                        : category.tags.some((t) => activeTags.includes(t));
 
                     return (
                         <div key={category.title}>
@@ -233,16 +238,22 @@ export default function SearchFilters({
                             </button>
 
                             {isExpanded && (
-                                <div className="flex flex-wrap gap-1.5">
+                                <div className="flex flex-wrap gap-2.5">
                                     {category.tags.map((tag) => {
-                                        const isActive = activeTags.includes(tag);
+                                        const isActive = category.isModel
+                                            ? activeModel.trim().toLowerCase() === tag.trim().toLowerCase()
+                                            : activeTags.includes(tag);
                                         return (
                                             <button
                                                 key={tag}
-                                                onClick={() => onTagToggle(tag)}
-                                                className={`px-2.5 py-1 rounded-full text-[11px] font-medium cursor-pointer transition-all duration-200 ${isActive
-                                                        ? "bg-[var(--accent)] text-white shadow-sm ring-2 ring-[var(--accent)]/30"
-                                                        : "bg-[var(--bg-subtle)] text-[var(--text-muted)] hover:bg-slate-100 hover:text-[var(--accent)] border border-[var(--border)] hover:border-[var(--accent)]/40"
+                                                onClick={() =>
+                                                    category.isModel
+                                                        ? onModelToggle(tag)
+                                                        : onTagToggle(tag)
+                                                }
+                                                className={`px-5 py-2.5 rounded-full text-sm font-medium cursor-pointer transition-all duration-200 ${isActive
+                                                    ? "bg-[var(--accent)] text-white shadow-md ring-2 ring-[var(--accent)]/40 scale-105"
+                                                    : "bg-[var(--bg-subtle)] text-[var(--text)] hover:bg-slate-100 hover:text-[var(--accent)] border border-[var(--border)] hover:border-[var(--accent)]/50 hover:shadow-sm"
                                                     }`}
                                             >
                                                 {tag}
