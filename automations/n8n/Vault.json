@@ -1,0 +1,336 @@
+{
+  "name": "Vault",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 3,15 * * *"
+            }
+          ]
+        }
+      },
+      "id": "00c2a330-c333-4680-8e20-e63a144695b1",
+      "name": "Agendamento 2x por Dia",
+      "position": [
+        -1376,
+        144
+      ],
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "automation_config",
+        "limit": 1,
+        "filterType": "string",
+        "filterString": "key=eq.banana_prompts_state"
+      },
+      "id": "04461213-9b7a-4e03-95af-a46d510a3ba5",
+      "name": "Carregar Estado",
+      "position": [
+        -1184,
+        144
+      ],
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "credentials": {
+        "supabaseApi": {
+          "id": "ta1XyquWeL2aUlgz",
+          "name": "bancodeprompts"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all();\nconst config = JSON.parse(rows?.[0]?.json?.value || '{}');\n\n// Página atual — começa em 0 e incrementa a cada execução\nconst pagina_atual = config.pagina_atual ?? 0;\nconst offset = pagina_atual * 100;\nconst total_salvo = config.total_salvo ?? 0;\n\nreturn [{ json: { pagina_atual, offset, total_salvo } }];"
+      },
+      "id": "7958c3bf-6d62-4947-b7f4-83b5540b8de8",
+      "name": "Inicializar Estado",
+      "position": [
+        -976,
+        144
+      ],
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "url": "=https://www.bananaprompts.xyz/api/prompts?offset={{ $json.offset }}&limit=100&sort=newest",
+        "options": {}
+      },
+      "id": "fedc1b74-88ab-4671-8766-e0cf6081861d",
+      "name": "Buscar Página",
+      "position": [
+        -784,
+        144
+      ],
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "maxTries": 3,
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst estado = $('Inicializar Estado').first().json;\n\nconst normalizeModel = (raw) => {\n  if (!raw || raw.trim() === '') return 'NanoBanana/Gemini';\n  const v = raw.toLowerCase().trim();\n  if (/gemini|nano.?banana|bananas?|gimini|gémini/.test(v)) return 'NanoBanana/Gemini';\n  if (/chatgpt|chat.?gpt|gpt[- ]?[34]|openai/.test(v))     return 'ChatGPT';\n  if (/midjourney|mid.?journey/.test(v))                    return 'Midjourney';\n  if (/dall.?e|dalle/.test(v))                              return 'DALL-E';\n  if (/stable.?diffusion|stablediffusion/.test(v))          return 'Stable Diffusion';\n  return 'NanoBanana/Gemini';\n};\n\nconst items = Array.isArray(input.items) ? input.items : [];\n\n// Página vazia — fim do site, vai resetar paginação\nif (items.length === 0) {\n  return [{ json: { _pagina_vazia: true, _estado: estado } }];\n}\n\nconst elegiveis = items.filter(i =>\n  !i.isPremium &&\n  i.prompt &&\n  i.prompt.trim() !== ''\n);\n\n// Sem elegíveis na página — trata igual a página vazia\nif (elegiveis.length === 0) {\n  return [{ json: { _pagina_vazia: true, _estado: estado } }];\n}\n\nreturn elegiveis.map(item => ({\n  json: {\n    _pagina_vazia: false,\n    original_id:   item.id,\n    title:         item.title,\n    full_prompt:   item.prompt,\n    image_url:     item.image       || null,\n    author_name:   item.creatorName || null,\n    tags:          item.tags        || [],\n    source_url:    `https://www.bananaprompts.xyz/prompts/${item.id}`,\n    model_name:    normalizeModel(item.model),\n    _estado:       estado\n  }\n}));"
+      },
+      "id": "6f98043e-c412-439a-9d7e-f34307509165",
+      "name": "Filtrar e Transformar",
+      "position": [
+        -576,
+        144
+      ],
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json._pagina_vazia }}"
+            }
+          ]
+        }
+      },
+      "id": "ce0fa851-66b0-487e-b176-102abcde248f",
+      "name": "Tem Prompts?",
+      "position": [
+        -352,
+        112
+      ],
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "tableId": "prompts_vault",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "_pagina_vazia,_estado"
+      },
+      "id": "33ee032d-71bb-4b9a-ae9c-002fb43951b0",
+      "name": "Salvar no Vault",
+      "position": [
+        -128,
+        16
+      ],
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "credentials": {
+        "supabaseApi": {
+          "id": "ta1XyquWeL2aUlgz",
+          "name": "bancodeprompts"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Conta quantos foram salvos com sucesso (sem erro)\nconst salvos = $input.all().filter(i => !i.json.error).length;\nconst estado = $('Filtrar e Transformar').last().json._estado;\n\nconst pagina_atual    = estado.pagina_atual ?? 0;\nconst total_salvo     = (estado.total_salvo ?? 0) + salvos;\nconst proxima_pagina  = pagina_atual + 1;\n\nreturn [{ json: {\n  salvos_agora: salvos,\n  total_salvo,\n  pagina_atual,\n  proxima_pagina,\n  _save_state: {\n    pagina_atual:  proxima_pagina,\n    total_salvo\n  }\n}}];"
+      },
+      "id": "c880472f-0482-479a-8fd3-1cac4bc95eab",
+      "name": "Contabilizar",
+      "position": [
+        96,
+        16
+      ],
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "jsCode": "// Página veio vazia — chegou ao fim do site\n// Zera a paginação para recomeçar do início no próximo ciclo\nconst estado = $input.first().json._estado;\nconst total_salvo = estado.total_salvo ?? 0;\n\nreturn [{ json: {\n  motivo: 'pagina_vazia_resetando',\n  total_salvo,\n  _save_state: {\n    pagina_atual: 0,\n    total_salvo\n  }\n}}];"
+      },
+      "id": "d90d2a97-f27e-422c-89c1-aaf6567d79ab",
+      "name": "Resetar Paginação",
+      "position": [
+        -128,
+        272
+      ],
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "automation_config",
+        "filterType": "string",
+        "filterString": "key=eq.banana_prompts_state",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "value",
+              "fieldValue": "={{ JSON.stringify($json._save_state) }}"
+            },
+            {
+              "fieldId": "updated_at",
+              "fieldValue": "={{ new Date().toISOString() }}"
+            }
+          ]
+        }
+      },
+      "id": "ef7cc2d2-a6f3-49ff-9fe7-6bf31fe80545",
+      "name": "Salvar Estado",
+      "position": [
+        352,
+        144
+      ],
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "credentials": {
+        "supabaseApi": {
+          "id": "ta1XyquWeL2aUlgz",
+          "name": "bancodeprompts"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        592,
+        144
+      ],
+      "id": "82bbbfef-4526-4178-b14f-d54f2a020dfd",
+      "name": "Finalizado"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Agendamento 2x por Dia": {
+      "main": [
+        [
+          {
+            "node": "Carregar Estado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Carregar Estado": {
+      "main": [
+        [
+          {
+            "node": "Inicializar Estado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inicializar Estado": {
+      "main": [
+        [
+          {
+            "node": "Buscar Página",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Página": {
+      "main": [
+        [
+          {
+            "node": "Filtrar e Transformar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar e Transformar": {
+      "main": [
+        [
+          {
+            "node": "Tem Prompts?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tem Prompts?": {
+      "main": [
+        [
+          {
+            "node": "Salvar no Vault",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resetar Paginação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salvar no Vault": {
+      "main": [
+        [
+          {
+            "node": "Contabilizar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contabilizar": {
+      "main": [
+        [
+          {
+            "node": "Salvar Estado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resetar Paginação": {
+      "main": [
+        [
+          {
+            "node": "Salvar Estado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salvar Estado": {
+      "main": [
+        [
+          {
+            "node": "Finalizado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "31bbf544-5c75-410d-bd71-ceac8ad22648",
+  "meta": {
+    "instanceId": "eac1f0d65b6dcbc3147f8b069e0700a65ee10dbf7e168a0fa961458a26ca6ac3"
+  },
+  "id": "-XIbCU6hrcgk2Cs-jg13-",
+  "tags": []
+}

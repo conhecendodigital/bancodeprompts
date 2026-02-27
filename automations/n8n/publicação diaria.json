@@ -1,0 +1,214 @@
+{
+  "name": "publicação diaria",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 5 * * *"
+            }
+          ]
+        }
+      },
+      "id": "a166bfca-d6e9-4ca6-98a2-4d25dca3d288",
+      "name": "Agendamento Publicação",
+      "position": [
+        -976,
+        976
+      ],
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "published_prompts",
+        "returnAll": true,
+        "filterType": "none"
+      },
+      "id": "534fdda2-8e18-44e0-ab91-a275c4b3226d",
+      "name": "Buscar IDs Publicados",
+      "position": [
+        -784,
+        976
+      ],
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "ta1XyquWeL2aUlgz",
+          "name": "bancodeprompts"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "prompts_vault",
+        "returnAll": true,
+        "filterType": "none"
+      },
+      "id": "c8518c6b-8448-42e0-8061-e85d2a4bc4f1",
+      "name": "Buscar Vault",
+      "position": [
+        -576,
+        976
+      ],
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "ta1XyquWeL2aUlgz",
+          "name": "bancodeprompts"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pega IDs já publicados\nconst publicados = $('Buscar IDs Publicados').all();\nconst idsPublicados = new Set(publicados.map(i => i.json.prompt_id).filter(Boolean));\n\n// Pega todos do vault\nconst vault = $('Buscar Vault').all();\n\n// Filtra os não publicados\nconst naoPublicados = vault\n  .filter(i => i.json.id && !idsPublicados.has(i.json.id))\n  .slice(0, 20); // limite de 20 por dia\n\nif (naoPublicados.length === 0) {\n  return [{ json: { _sem_novos: true } }];\n}\n\nreturn naoPublicados.map(item => ({\n  json: {\n    _sem_novos: false,\n    prompt_id: item.json.id\n  }\n}));"
+      },
+      "id": "d9c51caa-47e9-4783-8a6a-0cf099dcdd23",
+      "name": "Filtrar Não Publicados",
+      "position": [
+        -336,
+        976
+      ],
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json._sem_novos }}"
+            }
+          ]
+        }
+      },
+      "id": "feaf4059-bf1a-44fa-9a45-321838d1b4d9",
+      "name": "Tem Para Publicar?",
+      "position": [
+        -80,
+        976
+      ],
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "tableId": "published_prompts",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "_sem_novos"
+      },
+      "id": "d31fa48f-0357-4796-838e-624f8e5c4a41",
+      "name": "Publicar no Site",
+      "position": [
+        176,
+        880
+      ],
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "credentials": {
+        "supabaseApi": {
+          "id": "ta1XyquWeL2aUlgz",
+          "name": "bancodeprompts"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { status: 'vault_vazio', timestamp: new Date().toISOString() } }];"
+      },
+      "id": "7d318d35-46b7-4696-855a-2c9b4efd67d8",
+      "name": "Vault Vazio",
+      "position": [
+        176,
+        1088
+      ],
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Agendamento Publicação": {
+      "main": [
+        [
+          {
+            "node": "Buscar IDs Publicados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar IDs Publicados": {
+      "main": [
+        [
+          {
+            "node": "Buscar Vault",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Vault": {
+      "main": [
+        [
+          {
+            "node": "Filtrar Não Publicados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar Não Publicados": {
+      "main": [
+        [
+          {
+            "node": "Tem Para Publicar?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tem Para Publicar?": {
+      "main": [
+        [
+          {
+            "node": "Publicar no Site",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Vault Vazio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "78b8e66e-d2f7-4b96-ae8e-d42c68031cff",
+  "meta": {
+    "instanceId": "eac1f0d65b6dcbc3147f8b069e0700a65ee10dbf7e168a0fa961458a26ca6ac3"
+  },
+  "id": "o00oBgr2sCqEi2BxbGZfD",
+  "tags": []
+}
