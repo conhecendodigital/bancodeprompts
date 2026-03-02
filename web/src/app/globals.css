@@ -1,46 +1,197 @@
 @import "tailwindcss";
 
-:root {
-  --bg: #ffffff;
-  --bg-subtle: #f8f9fa;
-  --bg-card: #1a1a2e;
-  --text: #1a1a2e;
-  --text-muted: #6b7280;
-  --text-on-dark: #ffffff;
-  --accent: #6c5ce7;
-  --accent-hover: #5a4bd1;
-  --accent-light: #ede9fe;
-  --border: #e5e7eb;
-  --border-hover: #d1d5db;
-  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --shadow-card-hover: 0 8px 32px rgba(0, 0, 0, 0.14);
-  --radius: 12px;
-  --radius-sm: 8px;
-  --radius-pill: 9999px;
+/* ==========================================
+   ESCRITÓRIO DIGITAL — Chave AI Dark Theme
+   ========================================== */
+
+@theme {
+    /* ── Cores (valores EXATOS do Stitch) ── */
+    --color-primary: #7b61ff;
+    --color-primary-dark: #6347ff;
+    --color-primary-light: #9682ff;
+    --color-primary-content: #ffffff;
+
+    /* ── Backgrounds ── */
+    --color-background-dark: #121018;
+    --color-background-light: #f6f5f8;
+
+    /* ── Superfícies ── */
+    --color-surface-dark: #1d1b28;
+    --color-surface-light: #ffffff;
+    --color-surface: #F0EFF4;
+    --color-surface-dim: #E2E0E8;
+    --color-card-dark: #1d1b27;
+    --color-sidebar-dark: #18181b;
+
+    /* ── Texto ── */
+    --color-text-main: #e2e8f0;
+    --color-text-muted: #a09abc;
+
+    /* ── Efeitos ── */
+    --color-accent: #7B61FF;
+    --color-accent-glow: rgba(123, 97, 255, 0.3);
+    --color-accent-glow-strong: rgba(123, 97, 255, 0.5);
+    --color-plasma-purple: rgba(123, 97, 255, 0.4);
+    --color-ghost-white: #F0EFF4;
+    --color-primary-base: #121018;
+    --color-glass-border: rgba(255, 255, 255, 0.08);
+    --color-glass-bg: rgba(30, 27, 46, 0.7);
+
+    /* ── Tipografia ── */
+    --font-display: "Space Grotesk", sans-serif;
+    --font-sora: "Sora", sans-serif;
+    --font-serif: "Instrument Serif", serif;
+    --font-mono: "Fira Code", monospace;
+    --font-sans: "Lexend", "Sora", ui-sans-serif, system-ui, sans-serif;
 }
 
-* {
-  box-sizing: border-box;
+@layer base {
+    body {
+        background-color: var(--color-primary-base);
+        color: var(--color-surface);
+        overflow-x: hidden;
+    }
+
+    ::selection {
+        background-color: var(--color-accent);
+        color: white;
+    }
+
+    .material-symbols-outlined {
+        font-variation-settings:
+            'FILL' 1,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24;
+    }
 }
 
-body {
-  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  margin: 0;
-}
+@layer utilities {
+    .noise-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        pointer-events: none;
+        opacity: 0.035;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        background-repeat: repeat;
+        mix-blend-mode: overlay;
+    }
 
-/* Smooth scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+    .text-balance {
+        text-wrap: balance;
+    }
+
+    /* Glass Sidebar / Header */
+    .glass-header {
+        background: rgba(10, 10, 20, 0.6);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border-right: 1px solid rgba(240, 239, 244, 0.05);
+        border-bottom: 1px solid rgba(240, 239, 244, 0.05);
+    }
+
+    /* Glass Card v2 do Chave AI */
+    .glass-card {
+        background: rgba(240, 239, 244, 0.04);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(240, 239, 244, 0.07);
+        border-radius: 1.5rem;
+        transition: border-color 0.5s ease, box-shadow 0.5s ease, transform 0.5s ease;
+    }
+
+    .glass-card:hover {
+        border-color: rgba(123, 97, 255, 0.25);
+        box-shadow: 0 0 40px rgba(123, 97, 255, 0.08), 0 8px 32px rgba(0, 0, 0, 0.3);
+        transform: translateY(-2px);
+    }
+
+    /* Input Card Dark */
+    .input-glass {
+        background: rgba(10, 10, 20, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(240, 239, 244, 0.05);
+        border-radius: 1rem;
+        transition: border-color 0.5s ease, box-shadow 0.5s ease;
+    }
+
+    /* Override browser autofill background */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px #110e1f inset !important;
+        -webkit-text-fill-color: white !important;
+        caret-color: white !important;
+        border-radius: inherit;
+    }
+
+    .input-glass:focus-within {
+        border-color: rgba(123, 97, 255, 0.3);
+        box-shadow: 0 0 50px rgba(123, 97, 255, 0.1);
+    }
+
+    /* Magnetic Button do Chave AI */
+    .btn-magnetic {
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+            box-shadow 0.4s ease;
+    }
+
+    .btn-magnetic:hover {
+        transform: scale(1.03);
+        box-shadow: 0 8px 40px rgba(123, 97, 255, 0.3);
+    }
+
+    /* Link Hover Elevation */
+    .hover-lift {
+        transition: transform 0.3s ease, color 0.3s ease, background-color 0.3s ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-1px);
+    }
+
+    /* Scrollbar Custom */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: var(--color-primary-base);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: var(--color-accent);
+        border-radius: 3px;
+    }
+
+    /* Animations */
+    @keyframes shimmer {
+        100% {
+            transform: translateX(200%);
+        }
+    }
+
+    @keyframes slide-fade {
+
+        0%,
+        25% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        30%,
+        95% {
+            opacity: 0;
+            transform: scale(1.05);
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
 }

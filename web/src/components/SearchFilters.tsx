@@ -111,97 +111,72 @@ export default function SearchFilters({
     }, [activeTags, activeModel, onTagToggle, onModelToggle]);
 
     return (
-        <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-md rounded-2xl border border-[var(--border)] shadow-sm p-5">
+        <div className="sticky top-24 z-40 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)] p-6">
             {/* Header */}
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                    <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="var(--accent)"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-                    </svg>
-                    <h3 className="text-xs font-bold tracking-[0.15em] uppercase text-[var(--text)]">
-                        REFINAR GALERIA
+            <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined text-primary text-[20px]">filter_list</span>
+                    <h3 className="text-xs font-bold font-sora tracking-widest uppercase text-white">
+                        REFINAR PESQUISA
                     </h3>
                 </div>
                 {totalActiveFilters > 0 && (
                     <button
                         onClick={handleClearAll}
-                        className="text-[10px] font-semibold text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors uppercase tracking-wider cursor-pointer"
+                        className="text-[10px] font-bold text-primary hover:text-primary-light transition-colors uppercase tracking-widest cursor-pointer hover-lift flex items-center gap-1"
                     >
                         Limpar Filtros ({totalActiveFilters})
+                        <span className="material-symbols-outlined text-[14px]">close</span>
                     </button>
                 )}
             </div>
 
             {/* Search bar */}
-            <div className="relative mb-5">
-                <svg
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                >
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
+            <div className="relative mb-6 input-glass group">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors text-[20px]">
+                    search
+                </span>
                 <input
                     type="text"
                     value={localQuery}
                     onChange={handleInputChange}
                     placeholder="Pesquisar por título ou prompt..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-subtle)] border border-[var(--border)] rounded-xl text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] transition-all"
+                    className="w-full pl-12 pr-4 py-3 bg-transparent border-none text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-0 transition-all font-sans"
                 />
             </div>
 
             {/* Active filters indicator */}
             {totalActiveFilters > 0 && (
-                <div className="flex flex-wrap gap-2.5 mb-4 pb-4 border-b border-[var(--border)]">
-                    <span className="text-xs text-[var(--text-muted)] uppercase tracking-wider self-center mr-1 font-semibold">
+                <div className="flex flex-wrap gap-2.5 mb-6 pb-6 border-b border-white/5">
+                    <span className="text-xs text-slate-500 uppercase tracking-widest self-center mr-2 font-bold flex items-center gap-1">
+                        <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                         Ativos:
                     </span>
                     {activeModel && (
                         <button
                             onClick={() => onModelToggle(activeModel)}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-[var(--accent)] text-white transition-all hover:bg-[var(--accent-hover)] hover:scale-105 cursor-pointer shadow-md"
+                            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold bg-primary/20 text-primary border border-primary/30 transition-all hover:bg-primary/30 hover:border-primary/50 cursor-pointer shadow-[0_0_10px_rgba(123,97,255,0.1)] hover-lift"
                         >
-                            🤖 {activeModel}
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
-                                <line x1="18" y1="6" x2="6" y2="18" />
-                                <line x1="6" y1="6" x2="18" y2="18" />
-                            </svg>
+                            <span className="material-symbols-outlined text-[14px]">smart_toy</span>
+                            {activeModel}
+                            <span className="material-symbols-outlined text-[14px]">close</span>
                         </button>
                     )}
                     {activeTags.map((tag) => (
                         <button
                             key={`active-${tag}`}
                             onClick={() => onTagToggle(tag)}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-[var(--accent)] text-white transition-all hover:bg-[var(--accent-hover)] hover:scale-105 cursor-pointer shadow-md"
+                            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold bg-primary/20 text-primary border border-primary/30 transition-all hover:bg-primary/30 hover:border-primary/50 cursor-pointer shadow-[0_0_10px_rgba(123,97,255,0.1)] hover-lift"
                         >
                             {tag}
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
-                                <line x1="18" y1="6" x2="6" y2="18" />
-                                <line x1="6" y1="6" x2="18" y2="18" />
-                            </svg>
+                            <span className="material-symbols-outlined text-[14px]">close</span>
                         </button>
                     ))}
                 </div>
             )}
 
             {/* Categories — 100% dinâmicas do banco */}
-            <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
+            <div className="space-y-4 max-h-[50vh] overflow-y-auto custom-scrollbar pr-2">
                 {categories.map((category) => {
                     const isExpanded = expandedCategories.has(category.title);
                     const hasActiveTags = category.isModel
@@ -209,36 +184,29 @@ export default function SearchFilters({
                         : category.tags.some((t) => activeTags.includes(t));
 
                     return (
-                        <div key={category.title}>
+                        <div key={category.title} className="bg-white/[0.02] rounded-xl p-3 border border-white/5">
                             <button
                                 onClick={() => toggleCategory(category.title)}
-                                className="flex items-center justify-between w-full text-left mb-2 group cursor-pointer hover:bg-slate-50 rounded-lg px-2 py-1 -mx-2 transition-all duration-200"
+                                className="flex items-center justify-between w-full text-left group cursor-pointer hover:bg-white/5 rounded-lg px-3 py-2 transition-all duration-300"
                             >
                                 <span
-                                    className={`text-[10px] font-bold tracking-[0.12em] uppercase ${hasActiveTags
-                                        ? "text-[var(--accent)]"
-                                        : "text-[var(--text-muted)]"
+                                    className={`text-[11px] font-bold font-sora tracking-widest uppercase flex items-center gap-2 ${hasActiveTags
+                                        ? "text-primary"
+                                        : "text-slate-400"
                                         }`}
                                 >
                                     {category.title}
                                     {hasActiveTags && (
-                                        <span className="ml-1 text-[var(--accent)]">●</span>
+                                        <span className="size-1.5 bg-primary rounded-full shadow-[0_0_5px_rgba(123,97,255,0.5)]"></span>
                                     )}
                                 </span>
-                                <svg
-                                    className={`w-3 h-3 text-[var(--text-muted)] transition-transform ${isExpanded ? "rotate-180" : ""
-                                        }`}
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                >
-                                    <polyline points="6 9 12 15 18 9" />
-                                </svg>
+                                <span className={`material-symbols-outlined text-[18px] text-slate-500 transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}>
+                                    expand_more
+                                </span>
                             </button>
 
                             {isExpanded && (
-                                <div className="flex flex-wrap gap-2.5">
+                                <div className="flex flex-wrap gap-2 mt-4 px-3 pb-2">
                                     {category.tags.map((tag) => {
                                         const isActive = category.isModel
                                             ? activeModel.trim().toLowerCase() === tag.trim().toLowerCase()
@@ -251,9 +219,9 @@ export default function SearchFilters({
                                                         ? onModelToggle(tag)
                                                         : onTagToggle(tag)
                                                 }
-                                                className={`px-5 py-2.5 rounded-full text-sm font-medium cursor-pointer transition-all duration-200 ${isActive
-                                                    ? "bg-[var(--accent)] text-white shadow-md ring-2 ring-[var(--accent)]/40 scale-105"
-                                                    : "bg-[var(--bg-subtle)] text-[var(--text)] hover:bg-slate-100 hover:text-[var(--accent)] border border-[var(--border)] hover:border-[var(--accent)]/50 hover:shadow-sm"
+                                                className={`px-4 py-2 rounded-lg text-[11px] font-semibold tracking-wide cursor-pointer transition-all duration-300 hover-lift ${isActive
+                                                    ? "bg-primary text-white shadow-[0_0_15px_rgba(123,97,255,0.3)] border border-primary-light/50"
+                                                    : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white border border-white/10"
                                                     }`}
                                             >
                                                 {tag}
@@ -269,3 +237,4 @@ export default function SearchFilters({
         </div>
     );
 }
+

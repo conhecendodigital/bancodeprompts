@@ -56,7 +56,7 @@ export default function HomePage() {
   // Buscar todos os tags e modelos disponíveis (uma vez no mount)
   useEffect(() => {
     async function fetchFilterOptions() {
-      const { data } = await supabase
+      const { data } = await supabase()
         .from("published_prompts_view")
         .select("tags, model_name");
 
@@ -86,7 +86,7 @@ export default function HomePage() {
   // Construir query base com filtros
   const buildQuery = useCallback(
     (modelo: string, tags: string[]) => {
-      let query = supabase
+      let query = supabase()
         .from("published_prompts_view")
         .select("*")
         .order("captured_at", { ascending: false });
@@ -249,23 +249,25 @@ export default function HomePage() {
   }, [filteredPrompts.length, hasMore, loading]);
 
   return (
-    <div className="min-h-screen bg-[var(--bg)]">
+    <div className="min-h-screen bg-background-dark font-sans text-slate-100 relative">
+      <div className="noise-overlay hidden md:block"></div> {/* Overlay applied in layout, but double-belt check */}
+
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-4">
-        <span className="inline-block bg-[var(--accent-light)] text-[var(--accent)] text-[10px] font-bold tracking-[0.15em] uppercase px-3 py-1.5 rounded-md mb-4">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8 text-center relative z-10">
+        <span className="inline-block bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold tracking-[0.15em] uppercase px-4 py-1.5 rounded-full mb-6 shadow-[0_0_15px_rgba(123,97,255,0.15)]">
           BIBLIOTECA COMUNITÁRIA
         </span>
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--text)] leading-tight mb-3 max-w-2xl">
-          Explore os prompts que a comunidade está Compartilhando.
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black font-sora tracking-tight leading-tight text-white mb-6 max-w-4xl mx-auto">
+          Explore os prompts que a comunidade está <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-400">Compartilhando.</span>
         </h1>
-        <p className="text-base sm:text-lg text-[var(--text-muted)] max-w-xl mb-8">
+        <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-10">
           Navegue por imagens geradas com IA e os prompts por trás delas. Copie,
           adapte e crie suas próprias obras de arte.
         </p>
       </section>
 
-      {/* Filters */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+      {/* Filters (Assuming SearchFilters component will be updated later) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 relative z-10">
         <SearchFilters
           onSearchChange={handleSearchChange}
           onTagToggle={handleTagToggle}
@@ -279,14 +281,14 @@ export default function HomePage() {
       </section>
 
       {/* Results counter */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6 relative z-10">
         {!loading && (
-          <p className="text-sm text-[var(--text-muted)]">{totalLabel}</p>
+          <p className="text-sm font-semibold text-slate-400">{totalLabel}</p>
         )}
       </section>
 
       {/* Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 relative z-10">
         <PromptGrid
           prompts={filteredPrompts}
           loading={loading}
@@ -299,14 +301,14 @@ export default function HomePage() {
       {/* About / Footer */}
       <footer
         id="sobre"
-        className="border-t border-[var(--border)] bg-[var(--bg-subtle)]"
+        className="border-t border-white/5 bg-white/[0.02] backdrop-blur-md relative z-10"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="max-w-xl">
-            <h2 className="text-xl font-bold text-[var(--text)] mb-2">
+            <h2 className="text-2xl font-bold font-sora text-white mb-4">
               Sobre o BANCO DE PROMPTS
             </h2>
-            <p className="text-sm text-[var(--text-muted)] leading-relaxed">
+            <p className="text-base text-slate-400 leading-relaxed">
               O Banco de Prompts é uma biblioteca comunitária de prompts de IA
               para geração de imagens. Nosso objetivo é democratizar o acesso a
               prompts de alta qualidade, permitindo que qualquer pessoa explore e
@@ -314,8 +316,8 @@ export default function HomePage() {
               inteligência artificial.
             </p>
           </div>
-          <div className="mt-8 pt-6 border-t border-[var(--border)]">
-            <p className="text-xs text-[var(--text-muted)]">
+          <div className="mt-12 pt-8 border-t border-white/5">
+            <p className="text-sm text-slate-500 font-medium">
               © 2026 BANCO DE PROMPTS. Todos os direitos reservados.
             </p>
           </div>
@@ -324,3 +326,4 @@ export default function HomePage() {
     </div>
   );
 }
+

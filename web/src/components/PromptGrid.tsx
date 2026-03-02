@@ -14,15 +14,15 @@ interface PromptGridProps {
 
 function SkeletonCard() {
     return (
-        <div className="rounded-2xl overflow-hidden bg-[var(--bg-card)] shadow-[var(--shadow-card)] animate-pulse">
-            <div className="aspect-[4/3] bg-gray-700" />
-            <div className="p-4 space-y-3">
-                <div className="h-3 bg-gray-600 rounded w-full" />
-                <div className="h-3 bg-gray-600 rounded w-4/5" />
-                <div className="h-3 bg-gray-600 rounded w-3/5" />
-                <div className="flex justify-between items-center pt-1">
-                    <div className="h-6 bg-gray-600 rounded-full w-20" />
-                    <div className="h-3 bg-gray-600 rounded w-16" />
+        <div className="glass-card rounded-2xl overflow-hidden shadow-[0_4px_30px_rgba(0,0,0,0.1)] border border-white/10 animate-pulse">
+            <div className="aspect-[4/3] bg-white/5" />
+            <div className="p-5 space-y-4">
+                <div className="h-4 bg-white/10 rounded-md w-full" />
+                <div className="h-4 bg-white/10 rounded-md w-4/5" />
+                <div className="h-4 bg-white/10 rounded-md w-3/5" />
+                <div className="flex justify-between items-center pt-2">
+                    <div className="h-8 bg-white/10 rounded-full w-24" />
+                    <div className="h-4 bg-white/10 rounded-md w-16" />
                 </div>
             </div>
         </div>
@@ -74,26 +74,14 @@ export default function PromptGrid({
     if (prompts.length === 0) {
         return (
             <div className="text-center py-20">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--accent-light)] mb-4">
-                    <svg
-                        width="28"
-                        height="28"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="var(--accent)"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <circle cx="11" cy="11" r="8" />
-                        <path d="M21 21l-4.35-4.35" />
-                    </svg>
+                <div className="inline-flex items-center justify-center size-20 rounded-2xl bg-primary/10 mb-6 shadow-[0_0_30px_rgba(123,97,255,0.2)] border border-primary/20">
+                    <span className="material-symbols-outlined text-[32px] text-primary">search_off</span>
                 </div>
-                <h3 className="text-lg font-semibold text-[var(--text)] mb-1">
+                <h3 className="text-xl font-bold font-sora tracking-tight text-white mb-2">
                     Nenhum prompt encontrado
                 </h3>
-                <p className="text-sm text-[var(--text-muted)]">
-                    Tente ajustar sua busca ou remover alguns filtros.
+                <p className="text-sm text-slate-400 max-w-sm mx-auto">
+                    Tente ajustar sua busca ou remover alguns filtros para encontrar o que procura.
                 </p>
             </div>
         );
@@ -109,11 +97,11 @@ export default function PromptGrid({
 
             {/* Sentinel para infinite scroll */}
             {hasMore && (
-                <div ref={sentinelRef} className="mt-8">
+                <div ref={sentinelRef} className="mt-12">
                     {loadingMore && (
-                        <div className="flex items-center justify-center gap-3 py-8">
-                            <div className="w-5 h-5 border-2 border-[var(--accent)]/30 border-t-[var(--accent)] rounded-full animate-spin" />
-                            <span className="text-sm text-[var(--text-muted)]">
+                        <div className="flex flex-col items-center justify-center gap-4 py-8">
+                            <div className="size-8 border-[3px] border-primary/20 border-t-primary rounded-full animate-spin" />
+                            <span className="text-sm font-semibold tracking-wider text-primary uppercase">
                                 Carregando mais prompts...
                             </span>
                         </div>
