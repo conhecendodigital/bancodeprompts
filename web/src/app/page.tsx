@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase, type Prompt } from "@/lib/supabase";
 import SearchFilters from "@/components/SearchFilters";
@@ -8,7 +8,7 @@ import PromptGrid from "@/components/PromptGrid";
 
 const PAGE_SIZE = 30;
 
-export default function HomePage() {
+function HomePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -327,3 +327,14 @@ export default function HomePage() {
   );
 }
 
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background-dark flex items-center justify-center">
+        <div className="animate-pulse text-primary text-lg font-semibold">Carregando...</div>
+      </div>
+    }>
+      <HomePageContent />
+    </Suspense>
+  );
+}
