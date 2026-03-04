@@ -95,13 +95,13 @@ function Hero() {
             </p>
 
             <div className="hero-anim flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-              <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} className="btn-magnetic w-full sm:w-auto bg-accent text-white font-heading font-semibold px-8 py-4 rounded-full text-base md:text-lg inline-flex items-center justify-center gap-2">
+              <a href="https://pay.hotmart.com/P104718097Y" className="btn-magnetic w-full sm:w-auto bg-accent text-white font-heading font-semibold px-8 py-4 rounded-full text-base md:text-lg inline-flex items-center justify-center gap-2">
                 <span className="btn-bg bg-white/20"></span>
                 <span className="relative z-10 flex items-center gap-2">
                   Quero a Fábrica de Imagens
                   <ArrowRight size={20} />
                 </span>
-              </button>
+              </a>
             </div>
           </div>
 
@@ -980,12 +980,12 @@ function Pricing() {
               ))}
             </div>
 
-            <button className="btn-magnetic block w-full text-center bg-accent text-white font-heading font-semibold py-5 rounded-full text-base md:text-lg shadow-[0_0_40px_-10px_rgba(123,97,255,0.5)] transform hover:scale-[1.02] transition-transform">
+            <a href="https://pay.hotmart.com/P104718097Y" className="btn-magnetic block w-full text-center bg-accent text-white font-heading font-semibold py-5 rounded-full text-base md:text-lg shadow-[0_0_40px_-10px_rgba(123,97,255,0.5)] transform hover:scale-[1.02] transition-transform">
               <span className="btn-bg bg-white/20"></span>
               <span className="relative z-10 flex items-center justify-center gap-2">
                 Desbloquear Acesso Agora <ArrowRight size={20} />
               </span>
-            </button>
+            </a>
             <p className="text-accent/80 font-mono text-center text-xs mt-6">Pagamento único. Acesso Imediato.</p>
           </div>
         </div>
