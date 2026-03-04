@@ -268,7 +268,7 @@ function Problem() {
       <div className="section-container">
         <p className="font-mono text-xs text-accent uppercase tracking-widest mb-4 problem-item text-center md:text-left">Diagnóstico</p>
         <h2 className="font-heading font-bold text-3xl md:text-5xl text-white tracking-tight mb-4 problem-item max-w-3xl text-center md:text-left">
-          Se você acha que gerar imágens na IA é loteria...
+          Se você acha que gerar imagens na IA é loteria...
         </h2>
         <p className="text-white/40 mb-12 problem-item text-base md:text-lg text-center md:text-left">Você só precisa das palavras certas. Já fizemos o trabalho pesado por você.</p>
 
