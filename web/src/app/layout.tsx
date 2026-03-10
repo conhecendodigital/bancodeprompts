@@ -14,9 +14,9 @@ export const metadata: Metadata = {
     siteName: "Chave.AI",
     images: [
       {
-        url: "/opengraph-image.jpg", // The user will place this image in the public folder
+        url: "https://obancodeprompts.omatheusai.com.br/opengraph-image.jpg",
         width: 1200,
-        height: 630,
+        height: 1200,
         alt: "Banco de Prompts | Chave.AI",
       },
     ],
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Banco de Prompts | Chave.AI",
     description: "Milhares de prompts validados para você gerar imagens ultra-realistas em segundos.",
-    images: ["/opengraph-image.jpg"], // Same image for Twitter
+    images: ["https://obancodeprompts.omatheusai.com.br/opengraph-image.jpg"],
   },
 };
 export default function RootLayout({
