@@ -40,8 +40,8 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(url);
     }
 
-    // If user IS logged in and trying to access /login → redirect to home
-    if (user && request.nextUrl.pathname.startsWith('/login')) {
+    // If user IS logged in and trying to access /login (but NOT the reset-password page) → redirect to home
+    if (user && request.nextUrl.pathname === '/login') {
         const url = request.nextUrl.clone();
         url.pathname = '/';
         return NextResponse.redirect(url);
