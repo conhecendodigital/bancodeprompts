@@ -3,12 +3,33 @@ import "./globals.css";
 import Header from "@/components/Header";
 
 export const metadata: Metadata = {
-  title: "BANCO DE PROMPTS — Sua Biblioteca de Prompts de IA",
+  title: "Banco de Prompts | Chave.AI",
   description:
-    "Explore milhares de prompts de IA para gerar imagens incríveis. Copie, use e crie arte com inteligência artificial.",
-  keywords: ["prompts", "IA", "inteligência artificial", "imagens", "arte", "geração de imagens"],
+    "Desbloqueie o poder da Inteligência Artificial. Acesse nossa biblioteca exclusiva com milhares de prompts testados e validados para gerar imagens ultra-realistas e resultados profissionais em segundos.",
+  keywords: ["prompts", "IA", "inteligência artificial", "midjourney", "chatgpt", "imagens", "arte", "chave.ai", "escrever prompts", "geração de imagens"],
+  openGraph: {
+    title: "Banco de Prompts | Sua Biblioteca Exclusiva",
+    description: "Acesse milhares de prompts testados e validados para gerar imagens incríveis com Inteligência Artificial. Copie, cole e crie arte profissional em segundos.",
+    url: "https://obancodeprompts.omatheusai.com.br/",
+    siteName: "Chave.AI",
+    images: [
+      {
+        url: "/opengraph-image.jpg", // The user will place this image in the public folder
+        width: 1200,
+        height: 630,
+        alt: "Banco de Prompts | Chave.AI",
+      },
+    ],
+    locale: "pt_BR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Banco de Prompts | Chave.AI",
+    description: "Milhares de prompts validados para você gerar imagens ultra-realistas em segundos.",
+    images: ["/opengraph-image.jpg"], // Same image for Twitter
+  },
 };
-
 export default function RootLayout({
   children,
 }: Readonly<{
