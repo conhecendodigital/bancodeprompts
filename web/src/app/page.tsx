@@ -32,6 +32,8 @@ function HomePageContent() {
   // Tags e modelos disponíveis (carregados uma vez separadamente)
   const [allTags, setAllTags] = useState<string[]>([]);
   const [allModels, setAllModels] = useState<string[]>([]);
+  const [tagCounts, setTagCounts] = useState<Record<string, number>>({});
+  const [modelCounts, setModelCounts] = useState<Record<string, number>>({});
 
   // Ref para evitar fetch duplo no mount
   const hasFetched = useRef(false);
@@ -53,7 +55,7 @@ function HomePageContent() {
     [router]
   );
 
-  // Buscar todos os tags e modelos disponíveis (uma vez no mount)
+  // Buscar todos os tags, modelos e contagens (uma vez no mount)
   useEffect(() => {
     async function fetchFilterOptions() {
       const { data } = await supabase()
@@ -64,20 +66,32 @@ function HomePageContent() {
 
       const tagSet = new Set<string>();
       const modelSet = new Set<string>();
+      const tCounts: Record<string, number> = {};
+      const mCounts: Record<string, number> = {};
 
       data.forEach((row) => {
         if (row.tags && Array.isArray(row.tags)) {
           row.tags.forEach((t: string) => {
-            if (t && t.trim()) tagSet.add(t.trim());
+            if (t && t.trim()) {
+              const tag = t.trim();
+              tagSet.add(tag);
+              const key = tag.toLowerCase();
+              tCounts[key] = (tCounts[key] || 0) + 1;
+            }
           });
         }
         if (row.model_name && row.model_name.trim()) {
-          modelSet.add(row.model_name.trim());
+          const model = row.model_name.trim();
+          modelSet.add(model);
+          const key = model.toLowerCase();
+          mCounts[key] = (mCounts[key] || 0) + 1;
         }
       });
 
       setAllTags(Array.from(tagSet).sort());
       setAllModels(Array.from(modelSet).sort());
+      setTagCounts(tCounts);
+      setModelCounts(mCounts);
     }
 
     fetchFilterOptions();
@@ -254,11 +268,11 @@ function HomePageContent() {
 
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8 text-center relative z-10">
-        <span className="inline-block bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold tracking-[0.15em] uppercase px-4 py-1.5 rounded-full mb-6 shadow-[0_0_15px_rgba(123,97,255,0.15)]">
+        <span className="inline-block bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold tracking-[0.15em] uppercase px-4 py-1.5 rounded-full mb-6 shadow-[0_0_15px_rgba(255,107,0,0.15)]">
           BIBLIOTECA COMUNITÁRIA
         </span>
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black font-sora tracking-tight leading-tight text-white mb-6 max-w-4xl mx-auto">
-          Explore os prompts que a comunidade está <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-400">Compartilhando.</span>
+          Explore os prompts que a comunidade está <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">Compartilhando.</span>
         </h1>
         <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-10">
           Navegue por imagens geradas com IA e os prompts por trás delas. Copie,
@@ -277,6 +291,8 @@ function HomePageContent() {
           searchQuery={searchQuery}
           dynamicTags={allTags}
           modelNames={allModels}
+          tagCounts={tagCounts}
+          modelCounts={modelCounts}
         />
       </section>
 

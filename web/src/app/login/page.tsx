@@ -71,7 +71,7 @@ export default function LoginPage() {
                 {/* Background effects for the left side */}
                 <div className="absolute inset-0 pointer-events-none z-0">
                     <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px]" />
-                    <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[500px] h-[700px] bg-purple-600/10 rounded-full blur-[150px]" />
+                    <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[500px] h-[700px] bg-orange-600/10 rounded-full blur-[150px]" />
                     {/* Subtle grid pattern */}
                     <div
                         className="absolute inset-0 opacity-[0.03]"
@@ -86,7 +86,7 @@ export default function LoginPage() {
                 {/* Top Branding */}
                 <div className="relative z-10 lg:pl-4 xl:pl-12 pt-4">
                     <div className="hidden lg:flex items-center gap-3 mb-16">
-                        <div className="size-10 bg-gradient-to-tr from-primary to-purple-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(123,97,255,0.4)] border border-white/20">
+                        <div className="size-10 bg-gradient-to-tr from-primary to-orange-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(255,107,0,0.4)] border border-white/20">
                             <span className="text-white text-sm font-black font-display tracking-wider">BP</span>
                         </div>
                         <span className="text-xl font-black font-display tracking-tight text-white">
@@ -96,7 +96,7 @@ export default function LoginPage() {
 
                     <div className="max-w-xl text-center lg:text-left mx-auto lg:mx-0">
                         <h1 className="text-4xl sm:text-5xl xl:text-6xl font-black font-display tracking-tight text-white leading-[1.05] mb-4 sm:mb-6">
-                            Sua biblioteca de <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-400">prompts premium</span>.
+                            Sua biblioteca de <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">prompts premium</span>.
                         </h1>
                         <p className="text-slate-400 text-base sm:text-lg xl:text-xl leading-relaxed mb-8 sm:mb-10 max-w-md mx-auto lg:mx-0">
                             Acesse centenas de prompts de alta conversão, testados e validados para gerar imagens incríveis.
@@ -227,7 +227,7 @@ export default function LoginPage() {
                                     E-mail de acesso
                                 </label>
                                 <div className="relative group">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-purple-500/30 rounded-2xl blur-md opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
+                                    <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-orange-500/30 rounded-2xl blur-md opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
                                     <div className="relative input-glass rounded-2xl overflow-hidden flex items-center border border-white/10 group-focus-within:border-primary/50 transition-colors bg-[#110e1f]/80">
                                         <span className="material-symbols-outlined text-slate-500 text-[20px] pl-5 group-focus-within:text-primary transition-colors">
                                             mail
@@ -254,7 +254,7 @@ export default function LoginPage() {
                                     Senha
                                 </label>
                                 <div className="relative group">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-purple-500/30 rounded-2xl blur-md opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
+                                    <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-orange-500/30 rounded-2xl blur-md opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
                                     <div className="relative input-glass rounded-2xl overflow-hidden flex items-center border border-white/10 group-focus-within:border-primary/50 transition-colors bg-[#110e1f]/80">
                                         <span className="material-symbols-outlined text-slate-500 text-[20px] pl-5 group-focus-within:text-primary transition-colors">
                                             lock
@@ -288,7 +288,7 @@ export default function LoginPage() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="btn-magnetic relative w-full group overflow-hidden rounded-2xl border border-white/10 bg-primary/90 text-white font-bold tracking-widest text-[12px] uppercase transition-all duration-300 hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(123,97,255,0.2)] hover:shadow-[0_0_40px_rgba(123,97,255,0.5)]"
+                                className="btn-magnetic relative w-full group overflow-hidden rounded-2xl border border-white/10 bg-primary/90 text-white font-bold tracking-widest text-[12px] uppercase transition-all duration-300 hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(255,107,0,0.2)] hover:shadow-[0_0_40px_rgba(255,107,0,0.5)]"
                                 style={{ minHeight: '56px' }}
                             >
                                 {/* Button background glow */}
@@ -318,7 +318,7 @@ export default function LoginPage() {
                     <div className="mt-12 pt-8 border-t border-white/5 text-center">
                         <p className="text-slate-500 text-xs">
                             Ainda não tem acesso? Adquira na{" "}
-                            <a href="https://hotmart.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary-light font-semibold transition-colors underline-offset-4 hover:underline">
+                            <a href="https://pay.hotmart.com/P104718097Y" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary-light font-semibold transition-colors underline-offset-4 hover:underline">
                                 Hotmart
                             </a>.
                         </p>

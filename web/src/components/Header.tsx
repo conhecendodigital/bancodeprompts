@@ -26,7 +26,7 @@ export default function Header() {
                 <div className="flex items-center justify-between h-20">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-3 no-underline cursor-pointer group">
-                        <div className="size-10 bg-gradient-to-tr from-primary to-purple-600 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(123,97,255,0.4)] border border-white/20 group-hover:scale-105 transition-transform">
+                        <div className="size-10 bg-gradient-to-tr from-primary to-orange-600 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,107,0,0.4)] border border-white/20 group-hover:scale-105 transition-transform">
                             <span className="text-white text-sm font-black font-display tracking-wider">BP</span>
                         </div>
                         <div>

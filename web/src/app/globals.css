@@ -5,10 +5,10 @@
    ========================================== */
 
 @theme {
-    /* ── Cores (valores EXATOS do Stitch) ── */
-    --color-primary: #7b61ff;
-    --color-primary-dark: #6347ff;
-    --color-primary-light: #9682ff;
+    /* ── Cores (Chave.AI Orange Theme) ── */
+    --color-primary: #ff6b00;
+    --color-primary-dark: #cc5500;
+    --color-primary-light: #ffaa66;
     --color-primary-content: #ffffff;
 
     /* ── Backgrounds ── */
@@ -28,10 +28,11 @@
     --color-text-muted: #a09abc;
 
     /* ── Efeitos ── */
-    --color-accent: #7B61FF;
-    --color-accent-glow: rgba(123, 97, 255, 0.3);
-    --color-accent-glow-strong: rgba(123, 97, 255, 0.5);
-    --color-plasma-purple: rgba(123, 97, 255, 0.4);
+    --color-accent: #ff6b00;
+    --color-accent-glow: rgba(255, 107, 0, 0.3);
+    --color-accent-glow-strong: rgba(255, 107, 0, 0.5);
+    --color-plasma-purple: rgba(255, 107, 0, 0.4);
+    /* Renomear depois se quiser, mantendo a variável por eq. */
     --color-ghost-white: #F0EFF4;
     --color-primary-base: #121018;
     --color-glass-border: rgba(255, 255, 255, 0.08);
@@ -175,6 +176,18 @@
         }
     }
 
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-4px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     @keyframes slide-fade {
 
         0%,
@@ -193,5 +206,10 @@
             opacity: 1;
             transform: scale(1);
         }
+    }
+
+    /* Smooth expand/collapse */
+    .duration-400 {
+        transition-duration: 400ms;
     }
 }

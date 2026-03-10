@@ -84,7 +84,7 @@ export default function PromptDetailPage({
     };
 
     const placeholderGradients = [
-        "from-purple-600 to-blue-600",
+        "from-orange-600 to-blue-600",
         "from-amber-600 to-red-600",
         "from-emerald-600 to-teal-600",
         "from-pink-600 to-rose-600",
@@ -119,7 +119,7 @@ export default function PromptDetailPage({
                 {/* Not found */}
                 {notFound && !loading && (
                     <div className="text-center py-20 glass-card rounded-3xl border border-white/5 max-w-2xl mx-auto">
-                        <div className="inline-flex items-center justify-center size-24 rounded-3xl bg-primary/10 mb-8 shadow-[0_0_30px_rgba(123,97,255,0.2)] border border-primary/20">
+                        <div className="inline-flex items-center justify-center size-24 rounded-3xl bg-primary/10 mb-8 shadow-[0_0_30px_rgba(255,107,0,0.2)] border border-primary/20">
                             <span className="material-symbols-outlined text-[40px] text-primary">search_off</span>
                         </div>
                         <h2 className="text-3xl font-black font-display tracking-tight text-white mb-4">
@@ -130,7 +130,7 @@ export default function PromptDetailPage({
                         </p>
                         <Link
                             href="/"
-                            className="btn-magnetic inline-flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-xl font-bold tracking-widest text-[11px] uppercase shadow-[0_0_20px_rgba(123,97,255,0.3)] hover:shadow-[0_0_30px_rgba(123,97,255,0.5)] border border-primary-light/50 transition-all no-underline"
+                            className="btn-magnetic inline-flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-xl font-bold tracking-widest text-[11px] uppercase shadow-[0_0_20px_rgba(255,107,0,0.3)] hover:shadow-[0_0_30px_rgba(255,107,0,0.5)] border border-primary-light/50 transition-all no-underline"
                         >
                             <span className="material-symbols-outlined text-[16px]">gallery_thumbnail</span>
                             Voltar à galeria
@@ -167,6 +167,7 @@ export default function PromptDetailPage({
 
                             {/* Prompt block */}
                             <div className="relative bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 sm:p-8 mb-8 shadow-inner group">
+                                <div className="absolute inset-0 bg-gradient-to-br from-orange-600 to-blue-600 opacity-20 blur-xl group-hover:opacity-40 transition-opacity duration-500 rounded-2xl"></div>
                                 <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <span className="text-xs font-bold tracking-widest uppercase text-slate-500 flex items-center gap-1">
                                         <span className="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -182,8 +183,8 @@ export default function PromptDetailPage({
                             <button
                                 onClick={handleCopy}
                                 className={`btn-magnetic inline-flex items-center justify-center w-full sm:w-auto gap-3 px-8 py-4 rounded-xl text-[12px] font-bold tracking-widest uppercase transition-all duration-300 ${copied
-                                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                                    : "bg-primary text-white shadow-[0_0_20px_rgba(123,97,255,0.4)] hover:shadow-[0_0_30px_rgba(123,97,255,0.6)] border border-primary-light/50 hover:scale-105"
+                                    ? "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white border border-white/10"
+                                    : "bg-primary text-white shadow-[0_0_20px_rgba(255,107,0,0.4)] hover:shadow-[0_0_30px_rgba(255,107,0,0.6)] border border-primary-light/50 hover:scale-105"
                                     }`}
                             >
                                 {copied ? (
@@ -207,7 +208,7 @@ export default function PromptDetailPage({
                                             <span className="material-symbols-outlined text-[16px]">integration_instructions</span>
                                             ONDE USAR
                                         </h3>
-                                        <div className="inline-flex items-center gap-3 px-5 py-3 bg-primary/10 border border-primary/20 rounded-xl shadow-[0_0_15px_rgba(123,97,255,0.1)]">
+                                        <div className="inline-flex items-center gap-3 px-5 py-3 bg-primary/10 border border-primary/20 rounded-xl shadow-[0_0_15px_rgba(255,107,0,0.1)]">
                                             <span className="material-symbols-outlined text-primary text-[20px]">smart_toy</span>
                                             <span className="text-sm font-bold text-primary tracking-wide">
                                                 {prompt.model_name}

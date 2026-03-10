@@ -74,7 +74,7 @@ export default function PromptGrid({
     if (prompts.length === 0) {
         return (
             <div className="text-center py-20">
-                <div className="inline-flex items-center justify-center size-20 rounded-2xl bg-primary/10 mb-6 shadow-[0_0_30px_rgba(123,97,255,0.2)] border border-primary/20">
+                <div className="inline-flex items-center justify-center size-20 rounded-2xl bg-primary/10 mb-6 shadow-[0_0_30px_rgba(255,107,0,0.2)] border border-primary/20">
                     <span className="material-symbols-outlined text-[32px] text-primary">search_off</span>
                 </div>
                 <h3 className="text-xl font-bold font-sora tracking-tight text-white mb-2">

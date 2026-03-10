@@ -31,7 +31,7 @@ export default function PromptCard({ prompt }: PromptCardProps) {
     };
 
     const placeholderGradients = [
-        "from-purple-600 to-blue-600",
+        "from-orange-600 to-blue-600",
         "from-amber-600 to-red-600",
         "from-emerald-600 to-teal-600",
         "from-pink-600 to-rose-600",
@@ -47,7 +47,7 @@ export default function PromptCard({ prompt }: PromptCardProps) {
 
     return (
         <Link href={`/prompts/${prompt.original_id}`} className="block no-underline">
-            <div className="group relative rounded-2xl overflow-hidden glass-card shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_40px_rgba(123,97,255,0.2)] transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] cursor-pointer aspect-[3/4] border border-white/10 hover:border-primary/50">
+            <div className="group relative rounded-2xl overflow-hidden glass-card shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_40px_rgba(255,107,0,0.2)] transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] cursor-pointer aspect-[3/4] border border-white/10 hover:border-primary/50">
                 {/* Image */}
                 <div className="absolute inset-0 overflow-hidden">
                     {prompt.image_url ? (
