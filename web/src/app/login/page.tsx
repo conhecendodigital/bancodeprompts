@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient, supabase as getSupabase, type Prompt } from "@/lib/supabase";
+import Link from "next/link";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -283,6 +284,16 @@ export default function LoginPage() {
                             </div>
                         </div>
 
+                        {/* Forgot Password Link */}
+                        <div className="flex justify-end mt-2">
+                            <Link
+                                href="/login/forgot-password"
+                                className="text-[11px] font-bold tracking-wider text-primary hover:text-primary-light transition-colors"
+                            >
+                                ESQUECI MINHA SENHA
+                            </Link>
+                        </div>
+
                         {/* Submit Button */}
                         <div className="pt-2">
                             <button
@@ -324,8 +335,8 @@ export default function LoginPage() {
                         </p>
                     </div>
                 </div>
-            </div>
+            </div >
 
-        </div>
+        </div >
     );
 }
